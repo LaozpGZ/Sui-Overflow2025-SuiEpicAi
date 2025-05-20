@@ -13,3 +13,6 @@ node_modules
 
 # Arweave
 arweave-keyfile*
+
+# Ignore Docs directory
+Docs/

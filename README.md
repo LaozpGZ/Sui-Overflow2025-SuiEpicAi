@@ -1,134 +1,77 @@
-# Sui dApp Starter - Easy-to-Use Full-Stack Sui Starter
-[![Build and Lint (frontend)](https://github.com/suiware/sui-dapp-starter/actions/workflows/build_and_lint.yaml/badge.svg)](https://github.com/suiware/sui-dapp-starter/actions/workflows/build_and_lint.yaml)
-[![Discord chat](https://img.shields.io/discord/1237259509366521866.svg?logo=discord&style=flat-square)](https://discord.com/invite/HuDPpXz4Hx)
+# SuiEpicAi - AI-powered Blockchain Agent Platform
 
-![Spoiler](https://repository-images.githubusercontent.com/794883099/f0937c6b-c021-41db-b44a-a287b29111c3)
+SuiEpicAi is a cutting-edge AI agent platform built on blockchain technology. It seamlessly integrates AI chat agents, social interaction features, and a unique tokenized incentive mechanism. Our goal is to empower users to easily create, discover, and trade AI agents, thereby making blockchain operations more intelligent and accessible.
 
-[Won the 1st place in the Randomness category of the Sui Overflow 2024 hackathon](https://blog.sui.io/2024-sui-overflow-hackathon-winners/)
+**This project is being prepared for submission to the Sui Overflow 2025 hackathon.**
 
-## Motivation
+## Product Overview
 
-Most of the Sui starters I found were either very basic or one-sided (frontend or backend). Thanks to my experience with various full-stack starters and templates, I knew how to do better, so I started this template with the goal of providing all basic tools and components for you to focus on your business logic from day one and not spend weeks on creating your app skeleton. // [@kkomelin](https://github.com/kkomelin)
+SuiEpicAi combines three core elements:
 
-## Features
+- **AI Chat Agents**: Users can interact with and customize AI agents for various tasks, especially those related to blockchain.
+- **Social Platform Integration**: Agents can be integrated into social platforms (like Telegram) for broader reach and interaction.
+- **Tokenized Incentives**: A shares trading system allows users to invest in and benefit from the success of AI agents.
 
-- **[Suibase](https://suibase.io/)**: Painless work with the networks and system dependencies
-- **[Local Sui Explorer](https://github.com/suiware/sui-explorer)**: Browse your transactions and objects locally
-- **pnpm**: More efficient package management for monorepos
-- **TypeScript**: Less error-prone JavaScript
-- **React or Next.js**: Choose a template with a framework of your choice
-- **Tailwind CSS**: Utility-first CSS for more efficient styling
-- **Vite + SWC**: Faster app bundling and optimizing
-- **Radix UI**: Accessible React components to prototype quicker 
-- **Sui dApp Kit**: All you need to work with Sui network on frontend
-- **[@suiware/kit](https://www.npmjs.com/package/@suiware/kit)**: Useful react primitives, such as useTransact, useNetworkType, NetworkType, useBalance, Balance, useFaucet, Faucet and more
-- **Frontend Deployment**: [Firebase](https://sui-dapp-starter.dev/docs/frontend/deployment/firebase), [Walrus Sites](https://sui-dapp-starter.dev/docs/frontend/deployment/walrus), [Arweave](https://sui-dapp-starter.dev/docs/frontend/deployment/arweave)
-- **One-liner Install**: Just `pnpm create sui-dapp@latest`
-- **[Demo app](https://demo.sui-dapp-starter.dev/)**: Default Greeting (React) template
+### Core Value Proposition
 
-## Prerequisites
+- **AI-Assisted Blockchain Interaction**: Simplifying complex blockchain tasks through intuitive AI agents.
+- **Tokenizing User Value**: Turning contributions to the AI agent ecosystem into tradable digital assets.
+- **Community-Driven Growth**: Fostering an ecosystem through social interaction and economic incentives.
 
-Before you begin, install the following:
+## Key Features
 
-- [Suibase](https://suibase.io/how-to/install.html)
-- [Node (>= 20)](https://nodejs.org/en/download/)
-- [pnpm (>= 9)](https://pnpm.io/installation)
+- **AI Agent Creation & Management**: Tools to build and configure your own AI agents.
+- **Agent Discovery & Trading**: A marketplace to find new agents and trade their shares.
+- **Blockchain Integration**: Connect your wallet and perform on-chain operations seamlessly.
+- **Social Connectivity**: Link agents to social platforms for interactive use.
 
-## Installation
+## Project Structure
 
-### Option 1. Use the Github template
+This project is organized as a monorepo using pnpm:
 
-1. [Create a new project from the template](https://github.com/new?template_name=sui-dapp-starter&template_owner=suiware&name=my-sui-dapp).
+- `packages/frontend`: User interface built with Next.js, TypeScript, and Tailwind CSS.
+- `packages/backend`: Rust-based backend service for APIs, database, and blockchain sync.
+- `packages/contracts`: Sui Move smart contracts for core logic (shares, agents).
+- `Docs`: Product documentation and analysis reports.
 
-2. Clone the resulting repo locally.
+## Getting Started
 
-3. Choose a template by running the corresponding init command:
+To run SuiEpicAi locally:
 
-| Template | Init command |
-| --- | --- |
-| Greeting (React) | `pnpm init:template:greeting-react` |
-| Greeting (Next.js) | `pnpm init:template:greeting-next` |
-| Counter (React) | `pnpm init:template:counter-react` |
+### Prerequisites
 
-[Template Guide](https://sui-dapp-starter.dev/docs/templates)
+- Suibase: [Installation Guide](https://suibase.io/how-to/install.html)
+- Node.js (>= 20)
+- pnpm (>= 9)
 
-### Option 2. Use CLI
+### Installation
 
 ```bash
-pnpm create sui-dapp@latest
+git clone https://github.com/LaozpGZ/Sui-Overflow2025-SuiEpicAi.git
+cd Sui-Overflow2025-SuiEpicAi
+pnpm install
 ```
 
-This way you'll be able to configure the project step-by-step.
+### Running
 
-## Usage
+1.  **Start Local Sui Network:** `pnpm localnet:start`
+2.  **Deploy Contracts:** `pnpm contracts:deploy` (Customize script in `packages/contracts/package.json`)
+3.  **Fund Account:** `pnpm localnet:faucet 0xYOURADDRESS`
+4.  **Run Backend:** Navigate to `packages/backend/server` and run `cargo run`.
+5.  **Run Frontend:** `pnpm frontend:dev` (Access at [http://localhost:3000](http://localhost:3000))
 
-#### 1. Run the local Sui network:
+## Documentation
 
-```bash
-pnpm localnet:start
-```
+- Product Analysis Report (中文): [Docs/产品经理视角项目分析报告.md](/Docs/产品经理视角项目分析报告.md)
+- Frontend Specifics: [packages/frontend/README.md](/packages/frontend/README.md)
+- Backend Specifics: [packages/backend/README.md](/packages/backend/README.md)
+- Contracts Specifics: [packages/contracts/README.md](/packages/contracts/README.md)
 
-Local Sui Explorer will be available on [localhost:9001](http://localhost:9001/)
+## License
 
-#### 2. Deploy the demo contract to the local network:
+This project is licensed under the MIT License. Graphics are under CC-BY 4.0. See [LICENSE](/LICENSE) and [LICENSE-GRAPHICS](/LICENSE-GRAPHICS) for details.
 
-```bash
-pnpm localnet:deploy
-```
+## Contact
 
-_This command skips dependency verifications to prevent dependency version mismatch issues, which are caused by local and remote Sui version mismatch. The deploy commands for devnet, testnet and mainnet do perform such verifications._
-
-#### 3. Switch to the local network in your browser wallet settings.
-
-#### 4. Fund your localnet account/address:
-
-You have a few options here:
-
-a) Use the Faucet button integrated into your wallet (e.g. Sui Wallet).
-
-b) Copy the localnet address from your wallet and run the following in your console:
-
-```bash
-pnpm localnet:faucet 0xYOURADDRESS
-```
-
-c) Run the app and use the Faucet button in the footer.
-
-#### 5. Run the app:
-
-```bash
-pnpm start
-```
-Find all commands in the [documentation](https://sui-dapp-starter.dev/docs/misc/commands/).
-
-## Test
-
-#### Backend
-
-```bash
-pnpm test
-```
-
-## Docs & Support
-
-- [Sui dApp Starter Docs](https://sui-dapp-starter.dev/docs)
-- [Available PNPM Commands](https://sui-dapp-starter.dev/docs/misc/commands/)
-- [@suiware/kit Docs](https://www.npmjs.com/package/@suiware/kit)
-- [Discord Support](https://discord.com/invite/HuDPpXz4Hx)  
-
-## Useful Links
-
-- [Useful VSCode Extensions](./.vscode/extensions.json)
-- [Suibase Docs](https://suibase.io/intro.html)
-- [Move Book](https://move-book.com/)
-- [Sui Move: Code Conventions](https://docs.sui.io/concepts/sui-move-concepts/conventions)
-- [@mysten/create-dapp - official starter](https://www.npmjs.com/package/@mysten/create-dapp)
-- [Awesome Sui](https://github.com/sui-foundation/awesome-sui)
-
-## License & Copyright
-
-Copyright (c) 2024 Konstantin Komelin and other contributors
-
-Code is licensed under [MIT](https://github.com/suiware/sui-dapp-starter?tab=MIT-1-ov-file)
-
-SVG Graphics used for NFTs is licensed under [CC-BY 4.0](https://github.com/suiware/sui-dapp-starter?tab=CC-BY-4.0-2-ov-file)
+- GitHub Issues: [https://github.com/LaozpGZ/Sui-Overflow2025-SuiEpicAi/issues](https://github.com/LaozpGZ/Sui-Overflow2025-SuiEpicAi/issues)
+- Discord: (Add your Discord link here if you have one)
