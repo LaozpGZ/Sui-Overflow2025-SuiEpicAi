@@ -28,10 +28,11 @@ const Header = () => {
       {/* Navbar */}
       <nav className="flex flex-row gap-6 mx-4">
         <Link href="/" className="text-base font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">HOME</Link>
+        <Link href="/create-agent" className="text-base font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Create Agent</Link>
         {/* <Link href="/agent-list" className="text-base font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Agent list</Link>
         <Link href="/chats" className="text-base font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Chats</Link>
         <Link href="/explore" className="text-base font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Explore</Link>
-        <Link href="/create-agent" className="text-base font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Create Agent</Link>
+      
         <Link href="/about" className="text-base font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">About</Link>
         <Link href="/profile" className="text-base font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Profile</Link> */}
       </nav>

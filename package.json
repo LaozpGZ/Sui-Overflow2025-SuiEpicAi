@@ -48,7 +48,8 @@
     "testnet:update": "pnpm --filter backend testnet:update",
     "testnet:deploy": "pnpm --filter backend testnet:deploy",
     "testnet:deploy:no-dependency-check": "pnpm --filter backend testnet:deploy:no-dependency-check",
-    "testnet:address": "pnpm --filter backend testnet:address"
+    "testnet:address": "pnpm --filter backend testnet:address",
+    "clean:frontend": "rm -rf packages/frontend/.next packages/frontend/node_modules/.cache packages/frontend/dist"
   },
   "engines": {
     "node": ">=20"
