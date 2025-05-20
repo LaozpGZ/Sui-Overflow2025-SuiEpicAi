@@ -16,3 +16,9 @@ arweave-keyfile*
 
 # Ignore Docs directory
 Docs/
+
+# Ignore environment variable files
+.env
+
+# Ignore old frontend directory
+packages/frontend/old/

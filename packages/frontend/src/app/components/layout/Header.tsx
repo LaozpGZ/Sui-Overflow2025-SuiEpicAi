@@ -25,12 +25,22 @@ const Header = () => {
         <div className="pt-1 text-xl sm:text-2xl">{APP_NAME}</div>
       </Link>
 
+      {/* Navbar */}
+      <nav className="flex flex-row gap-6 mx-4">
+        <Link href="/" className="text-base font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">HOME</Link>
+        {/* <Link href="/agent-list" className="text-base font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Agent list</Link>
+        <Link href="/chats" className="text-base font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Chats</Link>
+        <Link href="/explore" className="text-base font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Explore</Link>
+        <Link href="/create-agent" className="text-base font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Create Agent</Link>
+        <Link href="/about" className="text-base font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">About</Link>
+        <Link href="/profile" className="text-base font-medium text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Profile</Link> */}
+      </nav>
+
       <div className="flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
         <div className="flex flex-row items-center justify-center gap-3">
           <Balance />
           <NetworkType />
         </div>
-
         {/* @todo: Find a better way to style ConnectButton for example through className, which is currently not supported. */}
         {/* className="[&>button]:!px-4 [&>button]:!py-2 [&>div]:!text-base" */}
         <div className="sds-connect-button-container">
