@@ -1,0 +1,9 @@
+[package]
+name = "shares_trading"
+version = "0.0.1"
+
+[dependencies]
+
+[addresses]
+shares_trading = "0x0"
+sui = "0000000000000000000000000000000000000000000000000000000000000002" 

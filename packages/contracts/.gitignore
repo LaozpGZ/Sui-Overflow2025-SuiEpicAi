@@ -1,0 +1,8 @@
+build
+sui_framework
+node_modules
+package-lock.json
+package.json
+tsconfig.json
+interact_with_shares_trading.ts
+interact_with_shares_trading.js

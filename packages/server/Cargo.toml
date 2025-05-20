@@ -1,0 +1,31 @@
+[package]
+name = "test-tg-bot"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+default = ["sui"]
+monad = []
+sui = []
+
+[dependencies]
+teloxide = { version = "0.12", features = ["macros"] }
+tokio = { version = "1.0", features = ["full"] }
+reqwest = { version = "0.12.15", features = ["json"] }
+dotenv = "0.15"
+actix-cors = "0.7.0"
+actix-web = "4.5.1"
+ethers = { version = "2.0", features = ["legacy"] }
+signature = "2.2.0"
+serde = { version = "1.0.218", features = ["derive"] }
+anyhow = "1.0.83"
+serde_json = "1.0.140"
+chrono = { version = "0.4", features = ["serde"] }
+sqlx = { version = "0.x", features = ["postgres", "runtime-tokio-rustls", "time", "chrono", "bigdecimal"] }
+async-trait = "0.1.77"
+base64 = "0.21.0"
+futures = "0.3"
+sui-sdk = { git = "https://github.com/MystenLabs/sui", package = "sui-sdk" }
+time = { version = "0.3", features = ["serde", "serde-well-known"] }
