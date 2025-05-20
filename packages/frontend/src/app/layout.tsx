@@ -6,6 +6,7 @@ import Footer from './components/layout/Footer'
 import { APP_DESCRIPTION, APP_NAME } from './config/main'
 import ClientProviders from './providers/ClientProviders'
 import './styles/index.css'
+import { Toaster } from 'react-hot-toast'
 
 export const metadata: Metadata = {
   title: APP_NAME,
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="flex min-h-screen flex-col">
+        <Toaster position="top-center" />
         <ClientProviders>
           <div className="flex min-h-screen flex-col items-center justify-center gap-6">
             <Header />

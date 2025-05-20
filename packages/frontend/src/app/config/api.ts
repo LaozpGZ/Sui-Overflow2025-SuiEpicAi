@@ -7,5 +7,6 @@ export const API_CONFIG = {
 }
 
 export const WEB3_CONFIG = {
-  NEW_MEMBER_VERIFY_URL: process.env.NEXT_PUBLIC_NEW_MEMBER_VERIFY_URL || 'https://your-verify-url'
+  NEW_MEMBER_VERIFY_URL: process.env.NEXT_PUBLIC_NEW_MEMBER_VERIFY_URL || 'https://your-verify-url',
+  SHARES_TRADING_OBJECT_ID: process.env.NEXT_PUBLIC_SHARES_TRADING_OBJECT_ID || '',
 } 

@@ -36,7 +36,7 @@
     "src/app/config/**/*",
     "src/app/hooks/**/*",
     "dist/types/**/*.ts"
-  ],
+, "old/agent-detail"  ],
   "exclude": [
     "node_modules"
   ]

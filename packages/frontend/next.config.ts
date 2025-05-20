@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   output: "export",
@@ -15,6 +16,12 @@ const nextConfig: NextConfig = {
   ],
   webpack: (config) => {
     config.externals = [...(config.externals || []), "encoding"];
+    config.resolve = config.resolve || {};
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      "@": path.resolve(__dirname, "src/app"),
+      "~~": path.resolve(__dirname, "src/app"),
+    };
     return config;
   },
 };

@@ -11,7 +11,7 @@ const AnimatedBackground = () => {
     <svg
       viewBox="0 0 1440 590"
       xmlns="http://www.w3.org/2000/svg"
-      className="absolute bottom-0 left-0 -z-50 object-cover opacity-70 transition delay-150 duration-300 ease-in-out"
+      className="absolute bottom-0 left-0 -z-50 object-cover opacity-80 blur-md md:blur-lg transition delay-150 duration-300 ease-in-out"
     >
       <defs>
         <linearGradient id="gradient1" x1="0%" y1="50%" x2="100%" y2="50%">
