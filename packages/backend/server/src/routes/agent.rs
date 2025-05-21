@@ -20,6 +20,8 @@ where
 pub struct Agent {
     pub agent_name: String,
     pub subject_address: String,
+    pub bio: Option<String>,
+    pub image: Option<String>,
     #[serde(serialize_with = "serialize_datetime")]
     pub created_at: PrimitiveDateTime,
 }
@@ -46,6 +48,7 @@ pub struct AgentDetailResponse {
     pub subject_address: String,
     pub invite_url: String,
     pub bio: Option<String>,
+    pub image: Option<String>,
     pub success: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
@@ -59,6 +62,7 @@ pub struct AddTelegramBotRequest {
     pub agent_name: String,
     pub invite_url: String,
     pub bio: Option<String>,
+    pub image: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -76,13 +80,14 @@ async fn handle_add_tg_bot(
     let subject_address = data.subject_address.to_lowercase().trim_start_matches("0x").to_owned();
     // Store bot information in database
     let result = sqlx::query!(
-        "INSERT INTO telegram_bots (agent_name, bot_token, chat_group_id, subject_address, invite_url, bio) VALUES ($1, $2, $3, $4, $5, $6)",
+        "INSERT INTO telegram_bots (agent_name, bot_token, chat_group_id, subject_address, invite_url, bio, image) VALUES ($1, $2, $3, $4, $5, $6, $7)",
         data.agent_name,
         data.bot_token,
         data.chat_group_id,
         subject_address.clone(),
         data.invite_url,
-        data.bio
+        data.bio,
+        data.image
     )
         .execute(pool.get_ref())
         .await;
@@ -142,7 +147,7 @@ async fn get_agents(
 
     // Get paginated agents
     let agents_result = sqlx::query!(
-        "SELECT agent_name, subject_address, created_at FROM telegram_bots ORDER BY created_at DESC LIMIT $1 OFFSET $2",
+        "SELECT agent_name, bio,subject_address, image, created_at FROM telegram_bots ORDER BY created_at DESC LIMIT $1 OFFSET $2",
         page_size,
         offset
     )
@@ -155,7 +160,9 @@ async fn get_agents(
             let agents: Vec<Agent> = rows.into_iter()
                 .map(|row| Agent {
                     agent_name: row.agent_name,
+                    bio: row.bio,
                     subject_address: row.subject_address,
+                    image: row.image,
                     created_at: row.created_at,
                 })
                 .collect();
@@ -184,7 +191,7 @@ async fn get_agent_by_name(
     let agent_name = path.into_inner();
 
     let agent_result = sqlx::query!(
-        "SELECT agent_name, subject_address, created_at FROM telegram_bots WHERE agent_name = $1",
+        "SELECT agent_name, bio, subject_address, image, created_at FROM telegram_bots WHERE agent_name = $1",
         agent_name
     )
         .fetch_optional(pool.get_ref())
@@ -196,6 +203,8 @@ async fn get_agent_by_name(
             let agent = Agent {
                 agent_name: row.agent_name,
                 subject_address: row.subject_address,
+                bio: row.bio,
+                image: row.image,
                 created_at: row.created_at,
             };
             
@@ -231,7 +240,7 @@ async fn get_agent_detail(
 
     // Query agent details from database
     let agent_result = sqlx::query!(
-        "SELECT agent_name, subject_address, invite_url, bio FROM telegram_bots WHERE agent_name = $1",
+        "SELECT agent_name, subject_address, invite_url, bio, image FROM telegram_bots WHERE agent_name = $1",
         agent_name
     )
         .fetch_optional(pool.get_ref())
@@ -244,6 +253,7 @@ async fn get_agent_detail(
                 subject_address: agent.subject_address,
                 invite_url: agent.invite_url,
                 bio: agent.bio,
+                image: agent.image,
                 success: true,
                 error: None,
             })
@@ -254,6 +264,7 @@ async fn get_agent_detail(
                 subject_address: String::new(),
                 invite_url: String::new(),
                 bio: None,
+                image: None,
                 success: false,
                 error: Some("Agent not found".to_string()),
             })
@@ -264,6 +275,7 @@ async fn get_agent_detail(
                 subject_address: String::new(),
                 invite_url: String::new(),
                 bio: None,
+                image: None,
                 success: false,
                 error: Some(format!("Database error: {}", e)),
             })
