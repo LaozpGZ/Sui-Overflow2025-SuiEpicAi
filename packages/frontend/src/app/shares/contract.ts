@@ -1,6 +1,6 @@
 // import { parseEther } from 'viem'; // Removed EVM specific import
 import { WEB3_CONFIG } from '@/config/api'; // Assuming API_CONFIG has web3 related configs
-import { TransactionBlock } from '@mysten/sui/transactions'; // Import TransactionBlock builder
+import { Transaction } from '@mysten/sui/transactions'; // Import Transaction builder
 import { SuiClient, getFullnodeUrl } from '@mysten/sui/client'; // Import Sui Client
 import { ENetwork } from '@/types/ENetwork';
 import { validateAddress, parseAmount, toBigIntSafe } from './utils/contractUtils';
@@ -42,10 +42,10 @@ export interface PriceEstimationResult {
   price: bigint;
 }
 
-// Build a TransactionBlock for the buy_shares entry function
+// Build a Transaction for the buy_shares entry function
 // Needs SharesTrading object ID, shares_subject address, amount, and payment coin
-export function getBuySharesParams(subjectAddress: string, amount: string, estimatedPrice: string): TransactionBlock {
-  const tx = new TransactionBlock();
+export function getBuySharesParams(subjectAddress: string, amount: string, estimatedPrice: string): Transaction {
+  const tx = new Transaction();
   // Package ID is a constant for now, but should be dynamic
   const packageId = PACKAGE_ID;
   const sharesTradingObjectId = SHARES_TRADING_OBJECT_ID; // Use the object ID
@@ -71,10 +71,10 @@ export function getBuySharesParams(subjectAddress: string, amount: string, estim
   return tx; // Return the built TransactionBlock
 }
 
-// Build a TransactionBlock for the sell_shares entry function
+// Build a Transaction for the sell_shares entry function
 // Needs SharesTrading object ID, shares_subject address, and amount
-export function getSellSharesParams(subjectAddress: string, amount: string): TransactionBlock {
-   const tx = new TransactionBlock();
+export function getSellSharesParams(subjectAddress: string, amount: string): Transaction {
+   const tx = new Transaction();
    // Package ID is a constant for now, but should be dynamic
    const packageId = PACKAGE_ID;
    const sharesTradingObjectId = SHARES_TRADING_OBJECT_ID; // Use the object ID
@@ -98,8 +98,8 @@ export function getBuySharesTx(
   subjectAddress: string,
   amount: string,
   estimatedPrice: string
-): TransactionBlock {
-  const tx = new TransactionBlock();
+): Transaction {
+  const tx = new Transaction();
   const { packageId, sharesTradingObjectId } = config;
   const [paymentCoin] = tx.splitCoins(tx.gas, [tx.pure(BigInt(estimatedPrice))]);
   tx.moveCall({
@@ -118,8 +118,8 @@ export function getSellSharesTx(
   config: NetworkContractConfig,
   subjectAddress: string,
   amount: string
-): TransactionBlock {
-  const tx = new TransactionBlock();
+): Transaction {
+  const tx = new Transaction();
   const { packageId, sharesTradingObjectId } = config;
   tx.moveCall({
     target: `${packageId}::${MODULE_NAME}::sell_shares`,

@@ -4,9 +4,10 @@ import Body from './components/layout/Body'
 import Extra from './components/layout/Extra'
 import Footer from './components/layout/Footer'
 import { APP_DESCRIPTION, APP_NAME } from './config/main'
-import ClientProviders from './providers/ClientProviders'
+import ClientRoot from './ClientRoot'
 import './styles/index.css'
 import { Toaster } from 'react-hot-toast'
+import React from 'react'
 
 export const metadata: Metadata = {
   title: APP_NAME,
@@ -22,14 +23,14 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="flex min-h-screen flex-col">
         <Toaster position="top-center" />
-        <ClientProviders>
+        <ClientRoot>
           <div className="flex min-h-screen flex-col items-center justify-center gap-6">
             <Header />
             <Body>{children}</Body>
             <Footer />
             <Extra />
           </div>
-        </ClientProviders>
+        </ClientRoot>
       </body>
     </html>
   )

@@ -6,6 +6,7 @@ import SearchBar from './components/SearchBar';
 import SortBar from './components/SortBar';
 import Pagination from './components/Pagination';
 import { useAgentList } from './hooks/useAgentList';
+import { fetchAgentList } from './api';
 
 function Page() {
   const {
@@ -21,7 +22,22 @@ function Page() {
     setFilter,
     loading,
     error,
-  } = useAgentList();
+  } = useAgentList({
+    apiFetch: async ({ page, pageSize }) => {
+      const data = await fetchAgentList(page, pageSize);
+      return {
+        agents: data.agents.map(a => ({
+          id: a.subject_address,
+          name: a.agent_name,
+          symbol: '', // 后端暂未提供
+          price: '',  // 后端暂未提供
+          description: a.bio || '', // 用bio
+          image: a.image || '',     // 用image
+        })),
+        total: data.total,
+      };
+    }
+  });
 
   return (
     <div className="p-8">

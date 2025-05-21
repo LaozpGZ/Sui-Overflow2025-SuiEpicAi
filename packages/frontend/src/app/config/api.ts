@@ -1,9 +1,9 @@
 export const AI_FRAME_CONFIG = {
-  AI_FRAME_API: process.env.NEXT_PUBLIC_AI_FRAME_API || 'https://your-ai-frame-api-url'
+  AI_FRAME_API: process.env.NEXT_PUBLIC_AI_FRAME_API || 'http://38.54.24.5/api'
 }
 
 export const API_CONFIG = {
-  SERVER_API: process.env.NEXT_PUBLIC_SERVER_API || 'https://your-server-api-url'
+  SERVER_API: process.env.NEXT_PUBLIC_SERVER_API || 'http://38.54.24.5/api'
 }
 
 export const WEB3_CONFIG = {

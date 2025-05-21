@@ -66,6 +66,7 @@ export default function CreateAgentForm() {
   const [agentBio, setAgentBio] = useState('');
   const [telegramInviteUrl, setTelegramInviteUrl] = useState('');
   const [success, setSuccess] = useState(false);
+  const [agentImage, setAgentImage] = useState('');
   const debouncedName = useDebounce(agentName, 500);
   const currentAccount = useCurrentAccount();
   const walletAddress = currentAccount?.address;
@@ -95,7 +96,7 @@ export default function CreateAgentForm() {
         const data = await response.json();
         setNameExists(data.agent !== null);
       } catch (error) {
-        // 网络错误不阻断流程
+        // Network error does not block the process
         setNameExists(false);
       } finally {
         setIsChecking(false);
@@ -110,7 +111,7 @@ export default function CreateAgentForm() {
     setError(null);
     setIsLoading(true);
     try {
-      // 钱包未连接
+      // Wallet not connected
       if (!isWalletConnected) {
         setError('Please connect your wallet first');
         setIsLoading(false);
@@ -122,54 +123,11 @@ export default function CreateAgentForm() {
         setIsLoading(false);
         return;
       }
-      // 获取agentId
-      const idResponse = await fetch(`${AI_FRAME_CONFIG.AI_FRAME_API}/agent/id/${encodeURIComponent(agentName)}`);
-      if (!idResponse.ok) throw new Error(`Failed to get agent ID: ${idResponse.status} ${idResponse.statusText}`);
-      const { agentId } = await idResponse.json();
-      if (!agentId) throw new Error('No agent ID returned from server');
-      // 生成agent数据
-      const agentData = {
-        name: agentName,
-        clients: ['telegram'],
-        allowDirectMessages: true,
-        modelProvider: 'deepseek',
-        settings: {
-          secrets: {
-            TELEGRAM_BOT_TOKEN: telegramToken,
-            NEW_MEMBER_VERIFY_URL: WEB3_CONFIG.NEW_MEMBER_VERIFY_URL,
-          },
-          modelConfig: { maxOutputTokens: 4096 },
-        },
-        plugins: ['@elizaos-plugins/client-telegram'],
-        bio: [agentBio],
-        lore: [],
-        knowledge: [
-          'I can execute token transfers, staking, unstaking, and governance actions directly with the connected wallet.',
-          'I ensure all actions are verified and secure before execution.',
-          'I support creating new denominations (denoms) directly through your wallet.',
-        ],
-        messageExamples: [],
-        postExamples: [],
-        topics: [
-          'Direct wallet operations',
-          'Token management',
-          'Secure transaction execution',
-        ],
-        style: {
-          all: ['Direct', 'Precise', 'Factual', 'Data-driven'],
-          chat: ['Clear', 'Verification-focused', 'Data-driven'],
-          post: [],
-        },
-        adjectives: ['Accurate', 'Methodical', 'Wallet-integrated'],
-      };
-      // 设置agent数据
-      const setResponse = await fetch(`${AI_FRAME_CONFIG.AI_FRAME_API}/agents/${agentId}/set`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(agentData),
-      });
-      if (!setResponse.ok) throw new Error(`Failed to create agent: ${setResponse.status} ${setResponse.statusText}`);
-      // 添加Telegram bot
+      // Use subject_address as agentId directly
+      // const agentId = walletAddress;
+      // Generate agent data (keep agentData variable for future use, but do not request /agents/{id}/set)
+      // const agentData = { ... };
+      // Only keep add_tg_bot request
       const addTelegramBotResponse = await fetch(`${API_CONFIG.SERVER_API}/add_tg_bot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -180,10 +138,11 @@ export default function CreateAgentForm() {
           agent_name: agentName,
           bio: agentBio,
           invite_url: telegramInviteUrl,
+          image: agentImage,
         }),
       });
       if (!addTelegramBotResponse.ok) throw new Error(`Failed to add Telegram bot: ${addTelegramBotResponse.status} ${addTelegramBotResponse.statusText}`);
-      // 成功反馈
+      // Success feedback
       setSuccess(true);
       setTimeout(() => {
         router.push('/');
@@ -233,8 +192,13 @@ export default function CreateAgentForm() {
       <div className="mb-4 text-sm text-gray-500">Wallet: {walletAddress?.slice(0, 6)}...{walletAddress?.slice(-4)}</div>
       {/* Basic Info Section */}
       <div>
-        <h2 className="text-lg font-semibold mb-3">Agent Basic Info</h2>
+        <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-sds-blue to-sds-pink bg-clip-text text-transparent">
+          Agent Basic Info
+        </h2>
         <div className="mb-6">
+          <label htmlFor="agentName" className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
+            Agent Name
+          </label>
           <TextField.Root
             id="agentName"
             name="agentName"
@@ -251,6 +215,9 @@ export default function CreateAgentForm() {
           {zodErrors.agentName && <div className="text-xs text-red-500 mt-1">{zodErrors.agentName[0]}</div>}
         </div>
         <div className="mb-6">
+          <label htmlFor="agentBio" className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
+            Agent Bio
+          </label>
           <TextArea
             id="agentBio"
             name="agentBio"
@@ -263,11 +230,31 @@ export default function CreateAgentForm() {
           />
           {zodErrors.agentBio && <div className="text-xs text-red-500 mt-1">{zodErrors.agentBio[0]}</div>}
         </div>
+        <div className="mb-6">
+          <label htmlFor="agentImage" className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
+            Agent Image URL
+          </label>
+          <TextField.Root
+            id="agentImage"
+            name="agentImage"
+            placeholder="Agent Image URL"
+            value={agentImage}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAgentImage(e.target.value)}
+            size="3"
+            className="rounded-lg shadow-sm focus:ring-2 focus:ring-sds-blue transition-all"
+          />
+          <div className="text-xs text-gray-500 mt-1">Optional: Enter an image URL for the agent avatar</div>
+        </div>
       </div>
       {/* Telegram Section */}
       <div>
-        <h2 className="text-lg font-semibold mb-3">Telegram Configuration</h2>
+        <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-sds-pink to-sds-blue bg-clip-text text-transparent">
+          Telegram Configuration
+        </h2>
         <div className="mb-6">
+          <label htmlFor="telegramToken" className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
+            Telegram Bot Token
+          </label>
           <TextField.Root
             id="telegramToken"
             name="telegramToken"
@@ -281,6 +268,9 @@ export default function CreateAgentForm() {
           {zodErrors.telegramToken && <div className="text-xs text-red-500 mt-1">{zodErrors.telegramToken[0]}</div>}
         </div>
         <div className="mb-6">
+          <label htmlFor="telegramGroupId" className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
+            Telegram Group ID
+          </label>
           <TextField.Root
             id="telegramGroupId"
             name="telegramGroupId"
@@ -296,6 +286,9 @@ export default function CreateAgentForm() {
           {zodErrors.telegramGroupId && <div className="text-xs text-red-500 mt-1">{zodErrors.telegramGroupId[0]}</div>}
         </div>
         <div className="mb-6">
+          <label htmlFor="telegramInviteUrl" className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
+            Telegram Invite URL
+          </label>
           <TextField.Root
             id="telegramInviteUrl"
             name="telegramInviteUrl"
