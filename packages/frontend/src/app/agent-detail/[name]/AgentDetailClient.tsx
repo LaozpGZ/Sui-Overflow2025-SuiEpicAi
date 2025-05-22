@@ -7,7 +7,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { useCurrentAccount } from '@mysten/dapp-kit';
 import { useSharesBalance } from '@/hooks/useSharesBalance';
 import { useRouter } from 'next/navigation';
-import TradeForm from '@/components/TradeForm';
+import TradeForm from '@/app/shares/TradeForm';
 
 export default function AgentDetailClient({ name }: { name: string }) {
   const router = useRouter();

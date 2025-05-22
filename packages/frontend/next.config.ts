@@ -7,7 +7,6 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: [
     "@mysten/dapp-kit",
-    "@mysten/sui.js",
     "@mysten/wallet-standard",
     "@suiware/kit",
     "@radix-ui/themes",

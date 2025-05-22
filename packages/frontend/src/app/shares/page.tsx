@@ -8,26 +8,34 @@ import SharesTable from './SharesTable';
 import TradeForm from './TradeForm';
 import { API_CONFIG } from '@/config/api';
 import { Share } from '@/types/shares';
-import { useSharesQuery } from '@/hooks/useSharesQuery';
 import { useSharesStore } from './store/useSharesStore';
-import CustomConnectButton from '@/components/CustomConnectButton';
+import CustomConnectButton from '../components/CustomConnectButton';
 import { notification } from '../helpers/notification';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { SuiClient } from '@mysten/sui/client';
+import { useAllSubjects } from './hooks/useAllSubjects';
+import { useAllUserSharesBalances } from './hooks/useAllUserSharesBalances';
 
 export default function SharesPage() {
   const currentAccount = useCurrentAccount();
   const walletAddress = currentAccount?.address;
   const isWalletConnected = !!walletAddress;
-  const { data, isLoading, error, refetch } = useSharesQuery(walletAddress);
+  const suiClient = new SuiClient({ url: 'https://fullnode.testnet.sui.io:443' });
+  const { data: subjects, loading: loadingSubjects, error: errorSubjects } = useAllSubjects(suiClient);
+  const userShares = useAllUserSharesBalances(suiClient, subjects || [], walletAddress || '');
+
   const { tradeMode, selectedShare, openBuy, openSell, closeTradeForm } = useSharesStore();
 
-  // 兼容 data 可能为 null 或单个 Share 的情况，确保 shares 一定为数组
-  const shares = Array.isArray(data) ? data : data ? [data] : [];
-
   const handleTradeComplete = () => {
-    refetch();
     closeTradeForm();
   };
+
+  if (loadingSubjects) {
+    return <LoadingSpinner />;
+  }
+  if (errorSubjects) {
+    return <div className="error-block">Failed to fetch on-chain data. Please check your network connection or try again later.<br />{errorSubjects}</div>;
+  }
 
   return (
     <div className="min-h-screen w-full bg-[#181f2a] flex flex-col items-center justify-start pt-24 pb-12 relative">
@@ -66,19 +74,15 @@ export default function SharesPage() {
           </div>
         ) : (
           <>
-            {isLoading ? (
-              <LoadingSpinner />
-            ) : error ? (
-              (() => { notification.error(null, typeof error === 'string' ? error : error?.message); return null; })()
-            ) : shares.length === 0 ? (
+            {userShares.length === 0 ? (
               <div className="text-center py-8">
                 <p>You don't have any Shares yet</p>
               </div>
             ) : (
               <>
                 <SharesTable 
-                  shares={shares} 
-                  onSell={openSell} 
+                  userShares={userShares} 
+                  onSell={(subject, sharesAmount) => openSell({ subject_address: subject, shares_amount: sharesAmount })} 
                 />
 
                 {tradeMode && (

@@ -10,13 +10,13 @@ import {
 } from './contract';
 import { formatPrice, isFirstShareSelfPurchase } from './utils/contractUtils';
 import { Share } from '@/types/shares';
-import { usePriceEstimation } from '@/hooks/usePriceEstimation';
-import { useSharesSupply } from '@/hooks/useSharesSupply';
+import { usePriceEstimation } from './hooks/usePriceEstimation';
+import { useSharesSupply } from './hooks/useSharesSupply';
 import { validateTradeForm } from './utils/validateTradeForm';
-import { useTradeShares } from '@/hooks/useTradeShares';
+import { useTradeShares } from './hooks/useTradeShares';
 import toast from 'react-hot-toast';
-import { useSharesBalance } from '@/hooks/useSharesBalance';
-import { SuiClient } from '@mysten/sui.js/client';
+import { useSharesBalance } from './hooks/useSharesBalance';
+import { SuiClient } from '@mysten/sui/client';
 
 type TradeFormProps = {
   mode: 'buy' | 'sell';
