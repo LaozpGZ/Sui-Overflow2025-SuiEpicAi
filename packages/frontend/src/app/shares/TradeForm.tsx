@@ -17,7 +17,7 @@ import { useTradeShares } from './hooks/useTradeShares';
 import toast from 'react-hot-toast';
 import { useSharesBalance } from './hooks/useSharesBalance';
 import { SuiClient } from '@mysten/sui/client';
-import { SUI_PACKAGE_ID } from '@/config/sui';
+import { useSuiKit } from '@/hooks/useSuiKit';
 
 type TradeFormProps = {
   mode: 'buy' | 'sell';
@@ -54,14 +54,14 @@ export default function TradeForm({
   // Use the new useTradeShares signature (must be before any usage of isPending/isConfirming)
   const { trade, isPending, isConfirming } = useTradeShares(onComplete, suiClient, suiAddress);
 
-  // 构造 config 传递给 usePriceEstimation
+  // Build config for usePriceEstimation
   const config = useMemo(() => ({
-    packageId: SUI_PACKAGE_ID,
+    packageId: TESTNET_SHARES_TRADING_OBJECT_ID,
     sharesTradingObjectId: TESTNET_SHARES_TRADING_OBJECT_ID,
     suiClient,
   }), [suiClient]);
 
-  // 用正确参数调用 usePriceEstimation，并安全获取 estimatedPrice
+  // Call usePriceEstimation with correct params and safely get estimatedPrice
   const priceEstimation = usePriceEstimation(config, mode, subjectAddress, amount);
   const estimatedPrice = priceEstimation?.price ?? null;
   const sharesSupply = useSharesSupply(config, subjectAddress);
@@ -69,7 +69,7 @@ export default function TradeForm({
   // Query on-chain balance (testnet only)
   const sharesBalanceResult = useSharesBalance(
     {
-      packageId: SUI_PACKAGE_ID,
+      packageId: TESTNET_SHARES_TRADING_OBJECT_ID,
       sharesTradingObjectId: TESTNET_SHARES_TRADING_OBJECT_ID,
       suiClient,
     },
@@ -109,7 +109,7 @@ export default function TradeForm({
   }, [isConfirming, onComplete]);
 
   useEffect(() => {
-    // 移除 refetchPrice 相关代码
+    // Removed refetchPrice related code
     // if (subjectAddress && amount && Number(amount) > 0) {
     //   refetchPrice();
     // }
@@ -168,6 +168,9 @@ export default function TradeForm({
       setIsLoading(false);
     }
   };
+
+  const { suiKit } = useSuiKit();
+  const SUI_PACKAGE_ID = suiKit.config.packageId;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">

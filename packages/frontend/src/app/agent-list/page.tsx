@@ -7,6 +7,7 @@ import SortBar from './components/SortBar';
 import Pagination from './components/Pagination';
 import { fetchAgentList } from './api';
 import { Agent } from './types';
+import { notification } from '../helpers/notification';
 
 function Page() {
   const [agents, setAgents] = useState<Agent[]>([]);
@@ -86,9 +87,7 @@ function Page() {
           onFilterChange={v => { setFilter(v); setPage(1); }}
         />
       </div>
-      {error && (
-        <div className="text-red-500 mb-4">{error}</div>
-      )}
+      {error && (() => { notification.error(null, error); return null; })()}
       <AgentList agents={agents.slice((page-1)*pageSize, page*pageSize)} loading={loading} />
       <Pagination page={page} totalPages={totalPages} onPageChange={setPage} loading={loading} />
     </div>

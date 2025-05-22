@@ -1,8 +1,10 @@
-import { SUI_CONFIG } from '@/config/sui';
+import { SuiKit } from '@suiware/kit';
 import { SuiClient } from '@mysten/sui.js/client';
 import { Share, SharesBalanceResult, SharesSupplyResult, PriceEstimationResult } from '../types';
 
 // Initialize SuiClient
+const suiKit = new SuiKit({ networkType: 'testnet' });
+const SUI_CONFIG = suiKit.config;
 const suiClient = new SuiClient({ url: process.env.NEXT_PUBLIC_SUI_RPC_URL! });
 
 // Get all shares list from on-chain

@@ -4,7 +4,7 @@ import { Transaction } from '@mysten/sui/transactions'; // Import Transaction bu
 import { SuiClient, getFullnodeUrl } from '@mysten/sui/client'; // Import Sui Client
 import { ENetwork } from '@/types/ENetwork';
 import { validateAddress, parseAmount, toBigIntSafe } from './utils/contractUtils';
-import { SUI_PACKAGE_ID } from '@/config/sui';
+import { SuiKit } from '@suiware/kit';
 // import useNetworkConfig from '@/hooks/useNetworkConfig'; // Moved network config logic elsewhere
 // import { 
 //   CONTRACT_PACKAGE_VARIABLE_NAME,
@@ -16,7 +16,8 @@ export const MODULE_NAME = 'shares_trading'; // From shares_trading.move
 // Function to get the Package ID
 // **TODO: Get the actual Package ID based on the connected network dynamically**
 // For now, using hardcoded Testnet ID based on user input.
-export const PACKAGE_ID = SUI_PACKAGE_ID;
+const suiKit = new SuiKit({ networkType: 'testnet' });
+const SUI_PACKAGE_ID = suiKit.config.packageId;
 
 // **TODO: Define how to get the SharesTrading Object ID**
 // This ID is needed as the first argument for entry functions like buy_shares/sell_shares
@@ -48,7 +49,7 @@ export interface PriceEstimationResult {
 export function getBuySharesParams(subjectAddress: string, amount: string, estimatedPrice: string): Transaction {
   const tx = new Transaction();
   // Package ID is a constant for now, but should be dynamic
-  const packageId = PACKAGE_ID;
+  const packageId = SUI_PACKAGE_ID;
   const sharesTradingObjectId = SHARES_TRADING_OBJECT_ID; // Use the object ID
 
   // **TODO: Correctly handle SUI coin payment in TransactionBlock**
@@ -77,7 +78,7 @@ export function getBuySharesParams(subjectAddress: string, amount: string, estim
 export function getSellSharesParams(subjectAddress: string, amount: string): Transaction {
    const tx = new Transaction();
    // Package ID is a constant for now, but should be dynamic
-   const packageId = PACKAGE_ID;
+   const packageId = SUI_PACKAGE_ID;
    const sharesTradingObjectId = SHARES_TRADING_OBJECT_ID; // Use the object ID
 
   tx.moveCall({

@@ -7,37 +7,26 @@ import GradientBackground from '@/components/AnimatedBackground';
 import SharesTable from './SharesTable';
 import TradeForm from './TradeForm';
 import { API_CONFIG } from '@/config/api';
-import { Share } from './types';
-import { useShares } from './hooks/useShares';
+import { Share } from '../../types/shares';
+import { useSharesQuery } from './hooks/useSharesQuery';
+import { useSharesStore } from './store/useSharesStore';
 import CustomConnectButton from '@/components/CustomConnectButton';
+import { notification } from '../helpers/notification';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function SharesPage() {
   const currentAccount = useCurrentAccount();
   const walletAddress = currentAccount?.address;
   const isWalletConnected = !!walletAddress;
-  const { shares, isLoading, error, refetch } = useShares(walletAddress);
-  const [tradeMode, setTradeMode] = useState<'buy' | 'sell' | null>(null);
-  const [selectedShare, setSelectedShare] = useState<Share | null>(null);
+  const { data, isLoading, error, refetch } = useSharesQuery(walletAddress);
+  const { tradeMode, selectedShare, openBuy, openSell, closeTradeForm } = useSharesStore();
 
-  const handleBuy = () => {
-    setTradeMode('buy');
-    setSelectedShare(null);
-  };
-
-  const handleSell = (share: Share) => {
-    setTradeMode('sell');
-    setSelectedShare(share);
-  };
-
-  const handleCloseTradeForm = () => {
-    setTradeMode(null);
-    setSelectedShare(null);
-  };
+  // 兼容 data 可能为 null 或单个 Share 的情况，确保 shares 一定为数组
+  const shares = Array.isArray(data) ? data : data ? [data] : [];
 
   const handleTradeComplete = () => {
     refetch();
-    setTradeMode(null);
-    setSelectedShare(null);
+    closeTradeForm();
   };
 
   return (
@@ -58,7 +47,7 @@ export default function SharesPage() {
           <h2 className="text-2xl font-bold text-white">Shares Balance</h2>
           <div className="flex gap-2">
             <button
-              onClick={handleBuy}
+              onClick={openBuy}
               className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 active:scale-95 transition px-4 py-2 rounded shadow-lg text-white text-base font-semibold"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
@@ -78,13 +67,9 @@ export default function SharesPage() {
         ) : (
           <>
             {isLoading ? (
-              <div className="text-center py-8">
-                <p>Loading...</p>
-              </div>
+              <LoadingSpinner />
             ) : error ? (
-              <div className="text-center py-8 text-red-500">
-                <p>{error}</p>
-              </div>
+              (() => { notification.error(null, typeof error === 'string' ? error : error?.message); return null; })()
             ) : shares.length === 0 ? (
               <div className="text-center py-8">
                 <p>You don't have any Shares yet</p>
@@ -93,7 +78,7 @@ export default function SharesPage() {
               <>
                 <SharesTable 
                   shares={shares} 
-                  onSell={handleSell} 
+                  onSell={openSell} 
                 />
 
                 {tradeMode && (
@@ -101,7 +86,7 @@ export default function SharesPage() {
                     mode={tradeMode} 
                     share={selectedShare}
                     userAddress={walletAddress || ''}
-                    onClose={handleCloseTradeForm}
+                    onClose={closeTradeForm}
                     onComplete={handleTradeComplete}
                   />
                 )}
