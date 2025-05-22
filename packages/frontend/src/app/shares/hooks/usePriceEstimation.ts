@@ -1,22 +1,14 @@
-import { useMemo } from 'react';
-import { getPriceEstimationParams } from '../contract';
-import { NetworkContractConfig, TradeMode, PriceEstimationResult } from '../types';
-import { useSuiClientQuery } from '@mysten/dapp-kit';
+import { useEffect, useState } from 'react';
+import { estimateSharePrice } from '../services/suiSharesService';
+import { PriceEstimationResult, TradeMode } from '../types';
 
-export function usePriceEstimation(
-  config: NetworkContractConfig | null,
-  mode: TradeMode,
-  subjectAddress: string,
-  amount: string
-): PriceEstimationResult | null {
-  const params = useMemo(() => {
-    if (!config || !subjectAddress || !amount) return null;
-    return getPriceEstimationParams(config, mode, subjectAddress, amount);
-  }, [config, mode, subjectAddress, amount]);
+export function usePriceEstimation(subjectAddress: string, amount: number): PriceEstimationResult | null {
+  const [result, setResult] = useState<PriceEstimationResult | null>(null);
 
-  const { data } = useSuiClientQuery('callMoveFunction', params ?? undefined);
+  useEffect(() => {
+    if (!subjectAddress || !amount) return;
+    estimateSharePrice(subjectAddress, amount).then(setResult);
+  }, [subjectAddress, amount]);
 
-  if (!data || !Array.isArray(data) || data.length === 0) return null;
-  const priceRaw = data[0] as string | number | bigint;
-  return { price: BigInt(priceRaw) };
+  return result;
 } 

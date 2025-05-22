@@ -1,18 +1,14 @@
 import { useEffect, useState } from 'react';
-import { fetchSharesBalance } from '../contract';
-import { NetworkContractConfig, SharesBalanceResult } from '../types';
+import { getSharesBalance } from '../services/suiSharesService';
+import { SharesBalanceResult } from '../types';
 
-export function useSharesBalance(
-  config: NetworkContractConfig | null,
-  subjectAddress: string,
-  userAddress: string
-): SharesBalanceResult | null {
+export function useSharesBalance(subjectAddress: string, userAddress: string): SharesBalanceResult | null {
   const [result, setResult] = useState<SharesBalanceResult | null>(null);
 
   useEffect(() => {
-    if (!config || !subjectAddress || !userAddress) return;
-    fetchSharesBalance(config, subjectAddress, userAddress).then(setResult);
-  }, [config, subjectAddress, userAddress]);
+    if (!subjectAddress || !userAddress) return;
+    getSharesBalance(subjectAddress, userAddress).then(setResult);
+  }, [subjectAddress, userAddress]);
 
   return result;
 } 

@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { fetchSharesSupply } from '../contract';
-import { NetworkContractConfig, SharesSupplyResult } from '../types';
+import { getSharesSupply } from '../services/suiSharesService';
+import { SharesSupplyResult } from '../types';
 
-export function useSharesSupply(config: NetworkContractConfig | null, subjectAddress: string): SharesSupplyResult | null {
+export function useSharesSupply(subjectAddress: string): SharesSupplyResult | null {
   const [result, setResult] = useState<SharesSupplyResult | null>(null);
 
   useEffect(() => {
-    if (!config || !subjectAddress) return;
-    fetchSharesSupply(config, subjectAddress).then(setResult);
-  }, [config, subjectAddress]);
+    if (!subjectAddress) return;
+    getSharesSupply(subjectAddress).then(setResult);
+  }, [subjectAddress]);
 
   return result;
 } 
