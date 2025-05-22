@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Agent } from '../types';
+import { Agent } from '@/app/agent-list/types';
 
 export interface UseAgentListOptions {
   pageSize?: number;

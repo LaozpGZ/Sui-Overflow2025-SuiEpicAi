@@ -9,15 +9,14 @@ import {
   getSellSharesParams
 } from './contract';
 import { formatPrice, isFirstShareSelfPurchase } from './utils/contractUtils';
-import { Share } from './types';
+import { Share } from '@/types/shares';
 import { usePriceEstimation } from './hooks/usePriceEstimation';
 import { useSharesSupply } from './hooks/useSharesSupply';
 import { validateTradeForm } from './utils/validateTradeForm';
 import { useTradeShares } from './hooks/useTradeShares';
 import toast from 'react-hot-toast';
 import { useSharesBalance } from './hooks/useSharesBalance';
-import { SuiClient } from '@mysten/sui/client';
-import { useSuiKit } from '@/hooks/useSuiKit';
+import { SuiClient } from '@mysten/sui.js/client';
 
 type TradeFormProps = {
   mode: 'buy' | 'sell';
@@ -62,28 +61,20 @@ export default function TradeForm({
   }), [suiClient]);
 
   // Call usePriceEstimation with correct params and safely get estimatedPrice
-  const priceEstimation = usePriceEstimation(config, mode, subjectAddress, amount);
-  const estimatedPrice = priceEstimation?.price ?? null;
-  const sharesSupply = useSharesSupply(config, subjectAddress);
-
+  const { data: priceEstimationData } = usePriceEstimation(subjectAddress, Number(amount));
+  const estimatedPrice = priceEstimationData?.price ?? null;
+  const { data: sharesSupplyData } = useSharesSupply(subjectAddress);
+  const sharesSupply = sharesSupplyData?.supply ?? 0n;
   // Query on-chain balance (testnet only)
-  const sharesBalanceResult = useSharesBalance(
-    {
-      packageId: TESTNET_SHARES_TRADING_OBJECT_ID,
-      sharesTradingObjectId: TESTNET_SHARES_TRADING_OBJECT_ID,
-      suiClient,
-    },
-    subjectAddress,
-    userAddress
-  );
-  const chainBalance = sharesBalanceResult?.balance ?? 0n;
+  const { data: sharesBalanceData } = useSharesBalance(subjectAddress, userAddress);
+  const chainBalance = sharesBalanceData?.balance ?? 0n;
 
   // Check if this is a first share self-purchase (shares supply = 0, buying own shares)
   const firstShareSelfPurchase = isFirstShareSelfPurchase(
     mode,
     subjectAddress,
     address || '',
-    sharesSupply?.toString() || '0'
+    sharesSupply.toString() || '0'
   );
 
   // Memoize the disabled state for subject address input
@@ -168,9 +159,6 @@ export default function TradeForm({
       setIsLoading(false);
     }
   };
-
-  const { suiKit } = useSuiKit();
-  const SUI_PACKAGE_ID = suiKit.config.packageId;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">

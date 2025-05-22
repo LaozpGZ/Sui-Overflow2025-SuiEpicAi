@@ -1,29 +1,29 @@
 // import { parseEther } from 'viem'; // Removed EVM specific import
 import { WEB3_CONFIG } from '@/config/api'; // Assuming API_CONFIG has web3 related configs
 import { Transaction } from '@mysten/sui/transactions'; // Import Transaction builder
-import { SuiClient, getFullnodeUrl } from '@mysten/sui/client'; // Import Sui Client
+import { SuiClient, getFullnodeUrl } from '@mysten/sui.js/client'; // Import Sui Client
 import { ENetwork } from '@/types/ENetwork';
 import { validateAddress, parseAmount, toBigIntSafe } from './utils/contractUtils';
-import { SuiKit } from '@suiware/kit';
+import { CURRENT_NETWORK_CONFIG } from '@/config/network';
 // import useNetworkConfig from '@/hooks/useNetworkConfig'; // Moved network config logic elsewhere
 // import { 
 //   CONTRACT_PACKAGE_VARIABLE_NAME,
 // } from '@/config/network'; // Moved network config logic elsewhere
 
 // Contract Configuration
-export const MODULE_NAME = 'shares_trading'; // From shares_trading.move
+export const MODULE_NAME = 'shares_trading';
 
 // Function to get the Package ID
 // **TODO: Get the actual Package ID based on the connected network dynamically**
 // For now, using hardcoded Testnet ID based on user input.
-const suiKit = new SuiKit({ networkType: 'testnet' });
-const SUI_PACKAGE_ID = suiKit.config.packageId;
+// 这里直接用常量或配置文件管理 packageId
+export const SUI_PACKAGE_ID = CURRENT_NETWORK_CONFIG.packageId;
 
 // **TODO: Define how to get the SharesTrading Object ID**
 // This ID is needed as the first argument for entry functions like buy_shares/sell_shares
 // It might be in WEB3_CONFIG, another env var, or fetched dynamically (e.g., by type).
 // Example placeholder - **Verify this path in your config or find where it's defined**:
-export const SHARES_TRADING_OBJECT_ID = WEB3_CONFIG.SHARES_TRADING_OBJECT_ID; 
+export const SHARES_TRADING_OBJECT_ID = CURRENT_NETWORK_CONFIG.sharesTradingObjectId; 
 
 // -------------------- Type Declarations --------------------
 export interface NetworkContractConfig {

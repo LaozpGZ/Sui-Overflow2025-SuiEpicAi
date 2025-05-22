@@ -1,5 +1,5 @@
 import { API_CONFIG } from '../config/api';
-import { Share } from './types';
+import { Share } from '@/types/shares';
 
 /**
  * Fetch all shares of a user on a specific blockchain

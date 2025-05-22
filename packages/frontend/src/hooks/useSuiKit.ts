@@ -1,11 +1,3 @@
-import { useMemo } from 'react';
-import { SuiKit, SuiKitConfig } from '@suiware/kit';
-
-export function useSuiKit(config?: Partial<SuiKitConfig>) {
-  const defaultConfig: SuiKitConfig = {
-    networkType: 'testnet', 
-    ...config,
-  };
-  const suiKit = useMemo(() => new SuiKit(defaultConfig), [JSON.stringify(defaultConfig)]);
-  return suiKit;
-} 
+// 该文件已不再需要 SuiKit，可直接删除或重构为 SuiClient 的 hook。
+// ... existing code ...
+// ... existing code ... 

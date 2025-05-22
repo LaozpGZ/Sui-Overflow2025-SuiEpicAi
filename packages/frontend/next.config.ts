@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
     config.resolve = config.resolve || {};
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
-      "@": path.resolve(__dirname, "src/app"),
+      "@": path.resolve(__dirname, "src"),
       "~~": path.resolve(__dirname, "src/app"),
     };
     return config;

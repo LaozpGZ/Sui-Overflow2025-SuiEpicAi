@@ -6,7 +6,7 @@ import SearchBar from './components/SearchBar';
 import SortBar from './components/SortBar';
 import Pagination from './components/Pagination';
 import { fetchAgentList } from './api';
-import { Agent } from './types';
+import { Agent } from '@/app/agent-list/types';
 import { notification } from '../helpers/notification';
 
 function Page() {

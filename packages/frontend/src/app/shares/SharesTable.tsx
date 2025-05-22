@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Share } from './types';
+import { Share } from '@/types/shares';
 
 // Props for SharesTable
 type SharesTableProps = {

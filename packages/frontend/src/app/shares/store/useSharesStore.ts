@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Share, TradeMode } from '../../../types/shares';
+import { Share, TradeMode } from '@/types/shares';
 
 interface SharesUIState {
   tradeMode: TradeMode | null;

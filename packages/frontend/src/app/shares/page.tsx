@@ -6,11 +6,11 @@ import Image from 'next/image';
 import GradientBackground from '@/components/AnimatedBackground';
 import SharesTable from './SharesTable';
 import TradeForm from './TradeForm';
-import { API_CONFIG } from '@/config/api';
+import { API_CONFIG } from '../config/api';
 import { Share } from '../../types/shares';
 import { useSharesQuery } from './hooks/useSharesQuery';
 import { useSharesStore } from './store/useSharesStore';
-import CustomConnectButton from '@/components/CustomConnectButton';
+import CustomConnectButton from '../components/CustomConnectButton';
 import { notification } from '../helpers/notification';
 import LoadingSpinner from '../components/LoadingSpinner';
 

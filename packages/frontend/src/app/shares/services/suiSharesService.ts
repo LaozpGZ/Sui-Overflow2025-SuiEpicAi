@@ -1,17 +1,15 @@
-import { SuiKit } from '@suiware/kit';
 import { SuiClient } from '@mysten/sui.js/client';
 import { Share, SharesBalanceResult, SharesSupplyResult, PriceEstimationResult } from '../types';
+import { CURRENT_NETWORK_CONFIG } from '@/config/network';
 
 // Initialize SuiClient
-const suiKit = new SuiKit({ networkType: 'testnet' });
-const SUI_CONFIG = suiKit.config;
-const suiClient = new SuiClient({ url: process.env.NEXT_PUBLIC_SUI_RPC_URL! });
+const suiClient = new SuiClient({ url: CURRENT_NETWORK_CONFIG.fullnodeUrl });
+// 你需要的 config（比如 packageId、objectId）请用常量或配置文件管理
 
 // Get all shares list from on-chain
 export async function getSharesList(): Promise<Share[]> {
-  // Fetch all dynamic fields under the shares_supply table
   const fields = await suiClient.getDynamicFields({
-    parentId: SUI_CONFIG.sharesTradingObjectId,
+    parentId: CURRENT_NETWORK_CONFIG.sharesTradingObjectId,
   });
   const shares: Share[] = [];
   for (const field of fields.data) {
@@ -38,7 +36,7 @@ export async function getShareDetail(subjectAddress: string): Promise<Share | nu
 // Get shares balance for a user
 export async function getSharesBalance(subjectAddress: string, userAddress: string): Promise<SharesBalanceResult> {
   const subjectField = await suiClient.getDynamicFieldObject({
-    parentId: SUI_CONFIG.sharesTradingObjectId,
+    parentId: CURRENT_NETWORK_CONFIG.sharesTradingObjectId,
     name: { type: 'address', value: subjectAddress },
   });
   const subjectTableId = (subjectField?.data?.content as any)?.fields?.value?.fields?.id?.id;
@@ -54,7 +52,7 @@ export async function getSharesBalance(subjectAddress: string, userAddress: stri
 // Get shares supply for a subject
 export async function getSharesSupply(subjectAddress: string): Promise<SharesSupplyResult> {
   const resp = await suiClient.getDynamicFieldObject({
-    parentId: SUI_CONFIG.sharesTradingObjectId,
+    parentId: CURRENT_NETWORK_CONFIG.sharesTradingObjectId,
     name: { type: 'address', value: subjectAddress },
   });
   const value = (resp?.data?.content as any)?.fields?.value;
@@ -64,11 +62,11 @@ export async function getSharesSupply(subjectAddress: string): Promise<SharesSup
 // Estimate price for buying shares (including fee)
 export async function estimateSharePrice(subjectAddress: string, amount: number): Promise<PriceEstimationResult> {
   const resp = await suiClient.callMoveFunction({
-    package: SUI_CONFIG.packageId,
+    package: CURRENT_NETWORK_CONFIG.packageId,
     module: 'shares_trading',
     function: 'get_buy_price_after_fee',
     arguments: [
-      SUI_CONFIG.sharesTradingObjectId,
+      CURRENT_NETWORK_CONFIG.sharesTradingObjectId,
       subjectAddress,
       amount,
     ],
