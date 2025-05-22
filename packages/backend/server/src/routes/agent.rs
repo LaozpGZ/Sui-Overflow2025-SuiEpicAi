@@ -63,6 +63,7 @@ pub struct AddTelegramBotRequest {
     pub invite_url: String,
     pub bio: Option<String>,
     pub image: Option<String>,
+    pub chain_type: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -78,16 +79,45 @@ async fn handle_add_tg_bot(
     pool: web::Data<PgPool>,
 ) -> impl Responder {
     let subject_address = data.subject_address.to_lowercase().trim_start_matches("0x").to_owned();
+    let chain_type = data.chain_type.clone().unwrap_or_else(|| "sui".to_string());
+    
+    let existing = sqlx::query!(
+        "SELECT agent_name FROM telegram_bots WHERE subject_address = $1 AND chain_type = $2",
+        subject_address.clone(),
+        chain_type.clone()
+    )
+    .fetch_optional(pool.get_ref())
+    .await;
+    
+    match existing {
+        Ok(Some(existing_bot)) => {
+            println!("Bot already exists for subject address {} on chain {}: Agent {}", subject_address, chain_type, existing_bot.agent_name);
+            return HttpResponse::BadRequest().json(AddTelegramBotResponse {
+                success: false,
+                error: Some(format!("A bot with the same address already exists: {}", existing_bot.agent_name)),
+            });
+        },
+        Ok(None) => {},
+        Err(e) => {
+            println!("Error checking existing bot: {:?}", e);
+            return HttpResponse::InternalServerError().json(AddTelegramBotResponse {
+                success: false,
+                error: Some(format!("Error checking existing bot: {}", e)),
+            });
+        }
+    }
+    
     // Store bot information in database
     let result = sqlx::query!(
-        "INSERT INTO telegram_bots (agent_name, bot_token, chat_group_id, subject_address, invite_url, bio, image) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+        "INSERT INTO telegram_bots (agent_name, bot_token, chat_group_id, subject_address, invite_url, bio, image, chain_type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
         data.agent_name,
         data.bot_token,
         data.chat_group_id,
         subject_address.clone(),
         data.invite_url,
         data.bio,
-        data.image
+        data.image,
+        chain_type
     )
         .execute(pool.get_ref())
         .await;

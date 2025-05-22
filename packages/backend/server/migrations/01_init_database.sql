@@ -62,6 +62,9 @@ CREATE TABLE IF NOT EXISTS telegram_bots (
 CREATE INDEX IF NOT EXISTS idx_telegram_bots_subject_address ON telegram_bots(subject_address);
 CREATE INDEX IF NOT EXISTS idx_telegram_bots_chain_type ON telegram_bots(chain_type);
 
+-- Add unique constraint to telegram_bots.subject_address
+ALTER TABLE telegram_bots ADD CONSTRAINT unique_subject_address UNIQUE (subject_address, chain_type);
+
 -- Update time trigger function
 CREATE OR REPLACE FUNCTION update_modified_column() 
 RETURNS TRIGGER AS $$
