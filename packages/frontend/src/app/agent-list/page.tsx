@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import AgentList from './components/AgentList';
-import SearchBar from './components/SearchBar';
-import SortBar from './components/SortBar';
-import Pagination from './components/Pagination';
+import AgentList from '@/components/AgentList';
+import SearchBar from '@/components/SearchBar';
+import SortBar from '@/components/SortBar';
+import Pagination from '@/components/Pagination';
 import { fetchAgentList } from './api';
 import { Agent } from '@/app/agent-list/types';
 import { notification } from '../helpers/notification';

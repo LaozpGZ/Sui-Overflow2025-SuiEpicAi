@@ -49,7 +49,8 @@
     "testnet:deploy": "pnpm --filter backend testnet:deploy",
     "testnet:deploy:no-dependency-check": "pnpm --filter backend testnet:deploy:no-dependency-check",
     "testnet:address": "pnpm --filter backend testnet:address",
-    "clean:frontend": "rm -rf packages/frontend/.next packages/frontend/node_modules/.cache packages/frontend/dist"
+    "clean:frontend": "bash packages/frontend/scripts/clean-cache.sh",
+    "cf": "pnpm clean:frontend"
   },
   "engines": {
     "node": ">=20"

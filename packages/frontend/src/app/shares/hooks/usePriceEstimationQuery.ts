@@ -3,7 +3,7 @@ import { estimateSharePrice } from '../services/suiSharesService';
 import { PriceEstimationResult } from '../../../types/shares';
 
 /**
- * 查询 subjectAddress 买入 amount 的价格预估
+ * Query price estimation for buying amount of shares for subjectAddress
  */
 export function usePriceEstimationQuery(subjectAddress: string, amount: number) {
   return useQuery<PriceEstimationResult, Error>({

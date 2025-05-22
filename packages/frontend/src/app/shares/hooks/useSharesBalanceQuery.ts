@@ -3,7 +3,7 @@ import { getSharesBalance } from '../services/suiSharesService';
 import { SharesBalanceResult } from '../../../types/shares';
 
 /**
- * 查询某个 subjectAddress 和 userAddress 的 shares balance
+ * Query shares balance for a given subjectAddress and userAddress
  */
 export function useSharesBalanceQuery(subjectAddress: string, userAddress: string) {
   return useQuery<SharesBalanceResult, Error>({

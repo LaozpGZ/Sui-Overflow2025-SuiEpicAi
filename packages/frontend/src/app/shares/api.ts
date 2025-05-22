@@ -1,4 +1,4 @@
-import { API_CONFIG } from '../config/api';
+import { API_CONFIG } from '@/config/api';
 import { Share } from '@/types/shares';
 
 /**

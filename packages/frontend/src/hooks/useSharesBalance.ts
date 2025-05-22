@@ -1,0 +1,29 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { getSharesBalance } from '@/app/shares/services/suiSharesService';
+import { SharesBalanceResult } from '@/types/shares';
+
+export function useSharesBalance(subjectAddress: string, userAddress: string) {
+  const [data, setData] = useState<SharesBalanceResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!subjectAddress || !userAddress) return;
+    setIsLoading(true);
+    setError(null);
+    getSharesBalance(subjectAddress, userAddress)
+      .then((res) => {
+        setData(res);
+        setError(null);
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : 'Failed to fetch shares balance.');
+        setData(null);
+      })
+      .finally(() => setIsLoading(false));
+  }, [subjectAddress, userAddress]);
+
+  return { data, isLoading, error };
+} 

@@ -1,5 +1,5 @@
 // Import API configuration
-import { API_CONFIG } from '../config';
+import { API_CONFIG } from '@/config/api';
 
 // API base URL
 const API_BASE_URL = API_CONFIG.SERVER_API;

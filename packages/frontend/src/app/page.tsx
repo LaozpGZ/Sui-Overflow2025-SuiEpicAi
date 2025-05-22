@@ -1,12 +1,12 @@
 import React from 'react';
-import NetworkSupportChecker from './components/NetworkSupportChecker';
-import HeroSection from './components/HeroSection';
-import FeaturesSection from './components/FeaturesSection';
-import HowItWorksSection from './components/HowItWorksSection';
-import FAQSection from './components/FAQSection';
-import CommunitySection from './components/CommunitySection';
+import NetworkSupportChecker from '@/app/components/NetworkSupportChecker';
+import HeroSection from '@/app/components/HeroSection';
+import FeaturesSection from '@/app/components/FeaturesSection';
+import HowItWorksSection from '@/app/components/HowItWorksSection';
+import FAQSection from '@/app/components/FAQSection';
+import CommunitySection from '@/app/components/CommunitySection';
 // Assuming WalletConnect component might be available or will be implemented here or in a shared location
-// import WalletConnectButton from './components/WalletConnectButton'; // Placeholder for wallet connect UI
+// import WalletConnectButton from '@/components/WalletConnectButton'; // Placeholder for wallet connect UI
 
 // Homepage composed of modular sections for clarity and maintainability
 export default function Home() {

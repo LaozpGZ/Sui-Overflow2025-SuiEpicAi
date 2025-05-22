@@ -1,6 +1,6 @@
 import { Link } from '@radix-ui/themes'
 import toast, { Renderable } from 'react-hot-toast'
-import Notification from '../components/Notification'
+import Notification from '@/components/Notification'
 
 const reportLoading = (message: Renderable) => {
   const content = <Notification type="loading">{message}</Notification>

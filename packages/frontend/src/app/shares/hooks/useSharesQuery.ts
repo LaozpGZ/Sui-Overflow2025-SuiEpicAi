@@ -3,8 +3,8 @@ import { getSharesList, getShareDetail } from '../services/suiSharesService';
 import { Share } from '../../../types/shares';
 
 /**
- * 获取 shares 列表或单个 share 详情
- * @param subjectAddress 可选，传入则只查单个 share
+ * Get shares list or single share detail
+ * @param subjectAddress Optional, if provided will only query single share
  */
 export function useSharesQuery(subjectAddress?: string) {
   return useQuery<Share[] | Share | null, Error>({
@@ -17,6 +17,6 @@ export function useSharesQuery(subjectAddress?: string) {
         return await getSharesList();
       }
     },
-    staleTime: 30_000, // 30秒内不重新请求
+    staleTime: 30_000, // Don't refetch for 30 seconds
   });
 } 

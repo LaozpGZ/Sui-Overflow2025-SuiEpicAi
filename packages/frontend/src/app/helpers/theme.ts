@@ -1,5 +1,5 @@
-import { darkTheme, lightTheme } from '../config/themes'
-import { TTheme } from '../types/TTheme'
+import { darkTheme, lightTheme } from '@/app/config/themes'
+import { TTheme } from '@/app/types/TTheme'
 
 export const detectBrowserTheme = (): TTheme => {
   if (typeof window === 'undefined') {

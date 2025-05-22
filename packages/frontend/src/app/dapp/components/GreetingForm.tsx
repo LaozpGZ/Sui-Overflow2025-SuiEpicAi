@@ -6,12 +6,12 @@ import { Button, TextField } from '@radix-ui/themes'
 import useTransact from '@suiware/kit/useTransact'
 import Image from 'next/image'
 import { ChangeEvent, FC, MouseEvent, PropsWithChildren, useState } from 'react'
-import CustomConnectButton from '~~/components/CustomConnectButton'
-import Loading from '~~/components/Loading'
+import CustomConnectButton from '@/components/CustomConnectButton'
+import Loading from '@/components/Loading'
 import {
   CONTRACT_PACKAGE_VARIABLE_NAME,
   EXPLORER_URL_VARIABLE_NAME,
-} from '~~/config/network'
+} from '@/config/network'
 import AnimalEmoji from '~~/dapp/components/Emoji'
 import {
   prepareCreateGreetingTransaction,
@@ -26,7 +26,7 @@ import {
   transactionUrl,
 } from '~~/helpers/network'
 import { notification } from '~~/helpers/notification'
-import useNetworkConfig from '~~/hooks/useNetworkConfig'
+import useNetworkConfig from '@/hooks/useNetworkConfig'
 
 const GreetingForm = () => {
   const [name, setName] = useState<string>('')

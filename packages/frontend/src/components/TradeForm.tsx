@@ -2,14 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import React from 'react';
-import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from 'wagmi';
+import { usePriceEstimation } from '@/app/shares/hooks/usePriceEstimation';
+import { useSharesSupply } from '@/app/shares/hooks/useSharesSupply';
+import { useTradeShares } from '@/app/shares/hooks/useTradeShares';
+import { useSharesBalance } from '@/app/shares/hooks/useSharesBalance';
 import { 
   getPriceEstimationParams, 
   getBuySharesParams, 
   getSellSharesParams,
   formatPrice,
   getSharesSupplyParams
-} from '../helpers/contract';
+} from '@/app/helpers/contract';
 
 type TradeFormProps = {
   mode: 'buy' | 'sell';
@@ -35,35 +38,13 @@ export default function TradeForm({
   const [error, setError] = useState<string | null>(null);
   const [estimatedPrice, setEstimatedPrice] = useState<string | null>(null);
 
-  const { address } = useAccount();
-  
-  // Contract write operation
-  const { data: hash, writeContract, isPending } = useWriteContract();
-  
-  // Transaction receipt
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = 
-    useWaitForTransactionReceipt({ hash });
-  
-  // Get price estimation parameters
-  const priceParams = subjectAddress && amount ? 
-    getPriceEstimationParams(mode, subjectAddress, amount) : null;
-  
-  // Price estimation for current amount
-  const { data: priceData, refetch: refetchPrice } = useReadContract({
-    ...priceParams,
-    query: {
-      enabled: Boolean(priceParams && amount && Number(amount) > 0),
-    },
-  });
-
-  // Get shares supply for the subject
-  const supplyParams = subjectAddress ? getSharesSupplyParams(subjectAddress) : null;
-  const { data: sharesSupply } = useReadContract({
-    ...supplyParams,
-    query: {
-      enabled: Boolean(supplyParams),
-    },
-  });
+  const address = userAddress;
+  const { data: priceEstimationData, isLoading: isPriceLoading } = usePriceEstimation(subjectAddress, Number(amount));
+  const { data: sharesSupplyData, isLoading: isSupplyLoading } = useSharesSupply(subjectAddress);
+  const sharesSupply = sharesSupplyData?.supply ?? 0n;
+  const { data: sharesBalanceData } = useSharesBalance(subjectAddress, userAddress);
+  const chainBalance = sharesBalanceData?.balance ?? 0n;
+  const { trade, isPending, isConfirming, error: tradeError } = useTradeShares(onComplete, null, address);
 
   useEffect(() => {
     if (mode === 'sell' && share) {
@@ -74,10 +55,10 @@ export default function TradeForm({
   }, [mode, share]);
   
   useEffect(() => {
-    if (priceData !== undefined && priceData !== null) {
-      setEstimatedPrice(priceData.toString());
+    if (priceEstimationData?.price !== undefined && priceEstimationData?.price !== null) {
+      setEstimatedPrice(priceEstimationData.price.toString());
     }
-  }, [priceData]);
+  }, [priceEstimationData]);
 
   // Check if this is a first share self-purchase (shares supply = 0, buying own shares)
   const isFirstShareSelfPurchase = 
@@ -85,19 +66,13 @@ export default function TradeForm({
     subjectAddress && 
     address && 
     subjectAddress.toLowerCase().replace(/^0x/, '') === address.toLowerCase().replace(/^0x/, '') && 
-    sharesSupply?.toString() === '0';
+    sharesSupply === 0n;
 
   useEffect(() => {
     if (subjectAddress && amount && Number(amount) > 0) {
-      refetchPrice();
+      // Refetch price estimation
     }
-  }, [subjectAddress, amount, refetchPrice]);
-
-  useEffect(() => {
-    if (isConfirmed) {
-      onComplete();
-    }
-  }, [isConfirmed, onComplete]);
+  }, [subjectAddress, amount]);
 
   const handleSetMaxAmount = () => {
     if (mode === 'sell' && share) {
@@ -130,34 +105,14 @@ export default function TradeForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
     setError(null);
-    
     if (!validateForm()) {
       return;
     }
-    
     setIsLoading(true);
-    
     try {
-      if (mode === 'buy') {
-        // For buying shares, we need to send the estimated price amount
-        // Special case: First share self-purchase is always valid with price 0
-        if ((estimatedPrice === null) || (estimatedPrice === '0' && !isFirstShareSelfPurchase)) {
-          throw new Error('Failed to estimate buy price');
-        }  else {
-          const buyParams = getBuySharesParams(subjectAddress, amount, estimatedPrice);
-          writeContract(buyParams);
-        }
-      } else {
-        // For selling shares
-        const sellParams = getSellSharesParams(subjectAddress, amount);
-        writeContract(sellParams);
-      }
-      // Transaction will be confirmed through the useWaitForTransactionReceipt hook
-      // which will trigger onComplete() when confirmed
+      await trade(mode, subjectAddress, amount, estimatedPrice ?? undefined);
     } catch (err) {
-      console.error('Transaction failed:', err);
       setError(err instanceof Error ? err.message : 'Transaction failed');
       setIsLoading(false);
     }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Agent } from '@/app/agent-list/types';
-import AgentCard from './AgentCard';
+import AgentCard from '@/app/agent-list/components/AgentCard';
+import Link from 'next/link';
 
 interface AgentListProps {
   agents: Agent[];
@@ -32,7 +33,13 @@ const AgentList: React.FC<AgentListProps> = ({ agents, loading }) => {
   return (
     <div className="grid grid-cols-4 gap-6 w-full">
       {agents.map(agent => (
-        <AgentCard key={agent.id} agent={agent} />
+        <Link
+          key={agent.id}
+          href={`/agent-detail/${encodeURIComponent(agent.name)}`}
+          className="block"
+        >
+          <AgentCard agent={agent} />
+        </Link>
       ))}
     </div>
   );

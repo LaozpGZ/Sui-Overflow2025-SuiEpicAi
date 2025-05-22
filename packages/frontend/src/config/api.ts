@@ -1,3 +1,7 @@
+export const API_CONFIG = {
+  SERVER_API: process.env.NEXT_PUBLIC_SERVER_API || 'http://38.54.24.5/api'
+};
+
 // Sui Testnet configuration. To switch to mainnet, update .env.local and restart the server.
 export const WEB3_CONFIG = {
   // shares_trading packageId

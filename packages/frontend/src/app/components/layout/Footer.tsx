@@ -7,10 +7,10 @@ import { HeartIcon, SearchIcon } from 'lucide-react'
 import {
   CONTRACT_PACKAGE_VARIABLE_NAME,
   EXPLORER_URL_VARIABLE_NAME,
-} from '../../config/network'
+} from '@/config/network'
 import { packageUrl } from '../../helpers/network'
 import { notification } from '../../helpers/notification'
-import useNetworkConfig from '../../hooks/useNetworkConfig'
+import useNetworkConfig from '@/app/hooks/useNetworkConfig'
 import ThemeSwitcher from '../ThemeSwitcher'
 
 const Footer = () => {
@@ -23,7 +23,7 @@ const Footer = () => {
   return (
     <footer className="flex w-full flex-col items-center justify-between gap-3 p-3 sm:flex-row sm:items-end">
       <div className="flex flex-row gap-3 lg:w-1/3">
-        {currentAccount != null && (
+        {currentAccount != null && explorerUrl && packageId && (
           <>
             <Faucet
               onError={notification.error}
