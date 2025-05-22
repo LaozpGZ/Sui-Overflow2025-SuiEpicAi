@@ -1,14 +1,31 @@
 import { useEffect, useState } from 'react';
 import { getSharesSupply } from '../services/suiSharesService';
-import { SharesSupplyResult } from '../types';
+import { SharesSupplyResult } from '../../../types/shares';
 
-export function useSharesSupply(subjectAddress: string): SharesSupplyResult | null {
-  const [result, setResult] = useState<SharesSupplyResult | null>(null);
+/**
+ * Custom hook to fetch shares supply for a subject address.
+ * Returns { data, isLoading, error } for UI-friendly error and loading handling.
+ */
+export function useSharesSupply(subjectAddress: string) {
+  const [data, setData] = useState<SharesSupplyResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!subjectAddress) return;
-    getSharesSupply(subjectAddress).then(setResult);
+    setIsLoading(true);
+    setError(null);
+    getSharesSupply(subjectAddress)
+      .then((res) => {
+        setData(res);
+        setError(null);
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : 'Failed to fetch shares supply.');
+        setData(null);
+      })
+      .finally(() => setIsLoading(false));
   }, [subjectAddress]);
 
-  return result;
+  return { data, isLoading, error };
 } 

@@ -4,7 +4,7 @@ import { SuiClient } from '@mysten/sui/client';
 
 /**
  * Custom hook for trading shares (buy/sell) via SuiClient.
- * Handles transaction state and completion callback.
+ * Handles transaction state, error, and completion callback.
  * @param onComplete - Callback when transaction is confirmed
  * @param suiClient - SuiClient instance for submitting transactions
  * @param senderAddress - The user's wallet address
@@ -16,6 +16,7 @@ export function useTradeShares(
 ) {
   const [isPending, setIsPending] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   /**
    * Unified trade function for buy/sell
@@ -30,8 +31,12 @@ export function useTradeShares(
     amount: string,
     estimatedPrice?: string
   ) {
-    if (!suiClient || !senderAddress) throw new Error('Missing SuiClient or sender address');
+    if (!suiClient || !senderAddress) {
+      setError('Missing SuiClient or sender address');
+      return;
+    }
     setIsPending(true);
+    setError(null);
     try {
       let tx;
       if (mode === 'buy') {
@@ -41,15 +46,14 @@ export function useTradeShares(
         tx = getSellSharesParams(subjectAddress, amount);
       }
       // Submit transaction
-      const result = await suiClient.signAndExecuteTransactionBlock({
+      await suiClient.signAndExecuteTransactionBlock({
         transactionBlock: tx,
         signer: senderAddress,
       });
       setIsConfirming(true);
-      // You can add more logic here to check transaction status
       onComplete();
     } catch (e) {
-      // Handle error (optional: set error state)
+      setError(e instanceof Error ? e.message : 'Failed to trade shares.');
     } finally {
       setIsPending(false);
       setIsConfirming(false);
@@ -60,5 +64,6 @@ export function useTradeShares(
     trade,
     isPending,
     isConfirming,
+    error,
   };
 } 

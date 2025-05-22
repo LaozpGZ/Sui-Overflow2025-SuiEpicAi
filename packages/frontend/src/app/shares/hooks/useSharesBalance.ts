@@ -1,14 +1,31 @@
 import { useEffect, useState } from 'react';
 import { getSharesBalance } from '../services/suiSharesService';
-import { SharesBalanceResult } from '../types';
+import { SharesBalanceResult } from '../../../types/shares';
 
-export function useSharesBalance(subjectAddress: string, userAddress: string): SharesBalanceResult | null {
-  const [result, setResult] = useState<SharesBalanceResult | null>(null);
+/**
+ * Custom hook to fetch shares balance for a user and subject address.
+ * Returns { data, isLoading, error } for UI-friendly error and loading handling.
+ */
+export function useSharesBalance(subjectAddress: string, userAddress: string) {
+  const [data, setData] = useState<SharesBalanceResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!subjectAddress || !userAddress) return;
-    getSharesBalance(subjectAddress, userAddress).then(setResult);
+    setIsLoading(true);
+    setError(null);
+    getSharesBalance(subjectAddress, userAddress)
+      .then((res) => {
+        setData(res);
+        setError(null);
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : 'Failed to fetch shares balance.');
+        setData(null);
+      })
+      .finally(() => setIsLoading(false));
   }, [subjectAddress, userAddress]);
 
-  return result;
+  return { data, isLoading, error };
 } 

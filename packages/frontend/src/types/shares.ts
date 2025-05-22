@@ -1,3 +1,6 @@
+// Shares related types for Sui on-chain logic
+// All comments and variable names are in English for clarity
+
 export type Share = {
   subject_address: string;
   shares_amount: string;
@@ -17,7 +20,7 @@ export interface PriceEstimationResult {
   price: bigint;
 }
 
-// NetworkContractConfig 类型声明（实际定义见 contract.ts）
+// NetworkContractConfig type declaration (see contract.ts for actual usage)
 export interface NetworkContractConfig {
   packageId: string;
   sharesTradingObjectId: string;
