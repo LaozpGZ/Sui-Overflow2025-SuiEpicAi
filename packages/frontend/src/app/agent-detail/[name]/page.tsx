@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { fetchAgentDetail, AgentDetail } from '../../../src/app/helpers/agentService';
-import LoadingSpinner from '../../../src/app/components/LoadingSpinner';
+import { fetchAgentDetail, AgentDetail } from '@/components/agentService';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { useCurrentAccount } from '@mysten/dapp-kit';
-import { useSharesBalance } from '../../../src/app/hooks/useSharesBalance';
+import { useSharesBalance } from '@/hooks/useSharesBalance';
 import { useRouter } from 'next/navigation';
-import TradeForm from '../../../src/app/components/TradeForm';
+import TradeForm from '@/components/TradeForm';
 
 export default function AgentDetailPage({ params }: { params: { name: string } }) {
   const router = useRouter();
