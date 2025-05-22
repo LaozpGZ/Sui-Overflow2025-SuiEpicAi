@@ -17,6 +17,7 @@ import { useTradeShares } from './hooks/useTradeShares';
 import toast from 'react-hot-toast';
 import { useSharesBalance } from './hooks/useSharesBalance';
 import { SuiClient } from '@mysten/sui/client';
+import { SUI_PACKAGE_ID } from '@/config/sui';
 
 type TradeFormProps = {
   mode: 'buy' | 'sell';
@@ -43,7 +44,6 @@ export default function TradeForm({
   
   // ====== Testnet NetworkContractConfig (for demo only) ======
   // You can later switch to dynamic network config
-  const TESTNET_PACKAGE_ID = '0xd08d2d8f0c7df418dbc038e6a03c7e6e19ca73b49bf1bd279c4440d511a65edd';
   const TESTNET_SHARES_TRADING_OBJECT_ID = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
   const TESTNET_FULLNODE_URL = 'https://fullnode.testnet.sui.io';
   // Ensure suiClient is always defined before use
@@ -56,7 +56,7 @@ export default function TradeForm({
 
   // 构造 config 传递给 usePriceEstimation
   const config = useMemo(() => ({
-    packageId: TESTNET_PACKAGE_ID,
+    packageId: SUI_PACKAGE_ID,
     sharesTradingObjectId: TESTNET_SHARES_TRADING_OBJECT_ID,
     suiClient,
   }), [suiClient]);
@@ -69,7 +69,7 @@ export default function TradeForm({
   // Query on-chain balance (testnet only)
   const sharesBalanceResult = useSharesBalance(
     {
-      packageId: TESTNET_PACKAGE_ID,
+      packageId: SUI_PACKAGE_ID,
       sharesTradingObjectId: TESTNET_SHARES_TRADING_OBJECT_ID,
       suiClient,
     },
