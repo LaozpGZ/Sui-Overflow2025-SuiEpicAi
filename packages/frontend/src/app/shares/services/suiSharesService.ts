@@ -1,18 +1,15 @@
-import { SuiClient } from '@mysten/sui/client';
-// import { type SuiTransport, type SuiTransportRequestOptions, type SuiTransportSubscribeOptions, type HttpHeaders, type SuiHTTPTransportOptions, SuiHTTPTransport, } from './http-transport.js';
 import { Share, SharesBalanceResult, SharesSupplyResult, PriceEstimationResult } from '../types';
-import { CURRENT_NETWORK_CONFIG } from '@/config/network';
 import { Transaction } from '@mysten/sui/transactions';
+import { SuiClient, getFullnodeUrl } from '@mysten/sui/client';
 
-// Initialize SuiClient
-const suiClient = new SuiClient({ url: 'https://fullnode.testnet.sui.io:443' });
-// Use constants or config files to manage required config (such as packageId, objectId)
+// Create a global SuiClient instance for all on-chain queries
+export const suiClient = new SuiClient({ url: getFullnodeUrl('mainnet') }); // You can change 'mainnet' to your target network
 
 // Get all shares list from on-chain
-export async function getSharesList(): Promise<Share[]> {
+export async function getSharesList(sharesTradingObjectId: string): Promise<Share[]> {
   try {
     const fields = await suiClient.getDynamicFields({
-      parentId: CURRENT_NETWORK_CONFIG.sharesTradingObjectId,
+      parentId: sharesTradingObjectId,
     });
     const shares: Share[] = [];
     for (const field of fields.data) {
@@ -20,7 +17,7 @@ export async function getSharesList(): Promise<Share[]> {
       // Fetch supply for each subject
       let supplyResult: SharesSupplyResult = { supply: 0n };
       try {
-        supplyResult = await getSharesSupply(subjectAddress);
+        supplyResult = await getSharesSupply(sharesTradingObjectId, subjectAddress);
       } catch (err) {
         console.error('[getSharesList] getSharesSupply error:', err);
       }
@@ -37,9 +34,9 @@ export async function getSharesList(): Promise<Share[]> {
 }
 
 // Get share detail by subject address from on-chain
-export async function getShareDetail(subjectAddress: string): Promise<Share | null> {
+export async function getShareDetail(sharesTradingObjectId: string, subjectAddress: string): Promise<Share | null> {
   try {
-    const supplyResult = await getSharesSupply(subjectAddress);
+    const supplyResult = await getSharesSupply(sharesTradingObjectId, subjectAddress);
     return {
       subject_address: subjectAddress,
       shares_amount: supplyResult.supply.toString(),
@@ -51,19 +48,23 @@ export async function getShareDetail(subjectAddress: string): Promise<Share | nu
 }
 
 // Get shares balance for a user
-export async function getSharesBalance(subjectAddress: string, userAddress: string): Promise<SharesBalanceResult> {
+export async function getSharesBalance(sharesTradingObjectId: string, subjectAddress: string, userAddress: string): Promise<SharesBalanceResult> {
   try {
-    const subjectField = await suiClient.getDynamicFieldObject({
-      parentId: CURRENT_NETWORK_CONFIG.sharesTradingObjectId,
-      name: { type: 'address', value: subjectAddress },
-    });
-    const subjectTableId = (subjectField?.data?.content as any)?.fields?.value?.fields?.id?.id;
+    // 1. Get subjectField
+    const subjectFields = await suiClient.getDynamicFields({ parentId: sharesTradingObjectId });
+    const subjectField = subjectFields.data.find(f => f.name.value === subjectAddress);
+    if (!subjectField) return { balance: 0n };
+    // 2. Get subjectField object content, extract subjectTableId
+    const subjectFieldObj = await suiClient.getObject({ id: subjectField.objectId });
+    const subjectTableId = (subjectFieldObj?.data?.content as any)?.fields?.value?.fields?.id?.id;
     if (!subjectTableId) return { balance: 0n };
-    const userField = await suiClient.getDynamicFieldObject({
-      parentId: subjectTableId,
-      name: { type: 'address', value: userAddress },
-    });
-    const value = (userField?.data?.content as any)?.fields?.value;
+    // 3. Get userField
+    const userFields = await suiClient.getDynamicFields({ parentId: subjectTableId });
+    const userField = userFields.data.find(f => f.name.value === userAddress);
+    if (!userField) return { balance: 0n };
+    // 4. Get userField object content, extract balance
+    const userFieldObj = await suiClient.getObject({ id: userField.objectId });
+    const value = (userFieldObj?.data?.content as any)?.fields?.value;
     return { balance: value ? BigInt(value) : 0n };
   } catch (err) {
     console.error('[getSharesBalance] On-chain query failed:', err);
@@ -72,13 +73,15 @@ export async function getSharesBalance(subjectAddress: string, userAddress: stri
 }
 
 // Get shares supply for a subject
-export async function getSharesSupply(subjectAddress: string): Promise<SharesSupplyResult> {
+export async function getSharesSupply(sharesTradingObjectId: string, subjectAddress: string): Promise<SharesSupplyResult> {
   try {
-    const resp = await suiClient.getDynamicFieldObject({
-      parentId: CURRENT_NETWORK_CONFIG.sharesTradingObjectId,
-      name: { type: 'address', value: subjectAddress },
-    });
-    const value = (resp?.data?.content as any)?.fields?.value;
+    // 1. Get subjectField
+    const subjectFields = await suiClient.getDynamicFields({ parentId: sharesTradingObjectId });
+    const subjectField = subjectFields.data.find(f => f.name.value === subjectAddress);
+    if (!subjectField) return { supply: 0n };
+    // 2. Get subjectField object content, extract supply
+    const subjectFieldObj = await suiClient.getObject({ id: subjectField.objectId });
+    const value = (subjectFieldObj?.data?.content as any)?.fields?.value;
     return { supply: value ? BigInt(value) : 0n };
   } catch (err) {
     console.error('[getSharesSupply] On-chain query failed:', err);
@@ -87,21 +90,20 @@ export async function getSharesSupply(subjectAddress: string): Promise<SharesSup
 }
 
 // Estimate price for buying shares (including fee)
-export async function estimateSharePrice(subjectAddress: string, amount: number): Promise<PriceEstimationResult> {
+export async function estimateSharePrice(packageId: string, sharesTradingObjectId: string, subjectAddress: string, amount: number): Promise<PriceEstimationResult> {
   console.log('[estimateSharePrice] called with:', {
     subjectAddress,
     amount,
-    packageId: CURRENT_NETWORK_CONFIG.packageId,
-    sharesTradingObjectId: CURRENT_NETWORK_CONFIG.sharesTradingObjectId,
-    fullnodeUrl: CURRENT_NETWORK_CONFIG.fullnodeUrl,
+    packageId,
+    sharesTradingObjectId,
   });
   try {
     // Construct PTB
     const tx = new Transaction();
     tx.moveCall({
-      target: `${CURRENT_NETWORK_CONFIG.packageId}::shares_trading::get_buy_price_after_fee`,
+      target: `${packageId}::shares_trading::get_buy_price_after_fee`,
       arguments: [
-        tx.pure.address(CURRENT_NETWORK_CONFIG.sharesTradingObjectId),
+        tx.pure.address(sharesTradingObjectId),
         tx.pure.address(subjectAddress),
         tx.pure.u64(amount),
       ],
@@ -122,4 +124,37 @@ export async function estimateSharePrice(subjectAddress: string, amount: number)
     console.error('[estimateSharePrice] Error:', err);
     return { price: 0n };
   }
+}
+
+// Query the shares supply for a given subject
+export async function fetchSharesSupply(
+  sharesTradingObjectId: string,
+  subjectAddress: string
+): Promise<SharesSupplyResult> {
+  const resp = await suiClient.getDynamicFieldObject({
+    parentId: sharesTradingObjectId,
+    name: { type: 'address', value: subjectAddress },
+  });
+  const value = (resp?.data?.content as any)?.fields?.value;
+  return { supply: value ? BigInt(value) : 0n };
+}
+
+// Query the shares balance for a user under a given subject
+export async function fetchSharesBalance(
+  sharesTradingObjectId: string,
+  subjectAddress: string,
+  userAddress: string
+): Promise<SharesBalanceResult> {
+  const subjectField = await suiClient.getDynamicFieldObject({
+    parentId: sharesTradingObjectId,
+    name: { type: 'address', value: subjectAddress },
+  });
+  const subjectTableId = (subjectField?.data?.content as any)?.fields?.value?.fields?.id?.id;
+  if (!subjectTableId) return { balance: 0n };
+  const userField = await suiClient.getDynamicFieldObject({
+    parentId: subjectTableId,
+    name: { type: 'address', value: userAddress },
+  });
+  const value = (userField?.data?.content as any)?.fields?.value;
+  return { balance: value ? BigInt(value) : 0n };
 } 

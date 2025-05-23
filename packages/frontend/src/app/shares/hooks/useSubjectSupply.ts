@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { SuiClient } from '@mysten/sui/client';
+import { suiClient } from '../services/suiSharesService';
 
-const SHARES_TRADING_OBJECT_ID = '0xd08d2d8f0c7df418dbc038e6a03c7e6e19ca73b49bf1bd279c4440d511a65edd';
-
-export function useSubjectSupply(suiClient: SuiClient, subjectAddress: string) {
+export function useSubjectSupply(
+  sharesTradingObjectId: string,
+  subjectAddress: string
+) {
   const [data, setData] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,15 +16,18 @@ export function useSubjectSupply(suiClient: SuiClient, subjectAddress: string) {
       setError(null);
       try {
         const sharesTradingObj = await suiClient.getObject({
-          id: SHARES_TRADING_OBJECT_ID,
+          id: sharesTradingObjectId,
           options: { showContent: true }
         });
-        const sharesSupplyTableId = sharesTradingObj.data.content.fields.shares_supply;
+        const content = sharesTradingObj?.data?.content as any;
+        const sharesSupplyTableId = content?.fields?.shares_supply;
+        if (!sharesSupplyTableId) throw new Error('shares_supply not found');
         const supplyObj = await suiClient.getDynamicFieldObject({
           parentId: sharesSupplyTableId,
           name: { type: 'address', value: subjectAddress }
         });
-        if (!cancelled) setData(Number(supplyObj.data.content.fields.value));
+        const supplyValue = (supplyObj?.data?.content as any)?.fields?.value;
+        if (!cancelled) setData(Number(supplyValue));
       } catch (e: any) {
         if (!cancelled) setError(e.message || 'Failed to fetch supply');
       } finally {
@@ -32,7 +36,7 @@ export function useSubjectSupply(suiClient: SuiClient, subjectAddress: string) {
     }
     if (subjectAddress) fetchSupply();
     return () => { cancelled = true; };
-  }, [suiClient, subjectAddress]);
+  }, [sharesTradingObjectId, subjectAddress]);
 
   return { data, loading, error };
 } 

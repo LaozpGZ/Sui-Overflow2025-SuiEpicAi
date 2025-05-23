@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react';
 import { estimateSharePrice } from '../services/suiSharesService';
 import { PriceEstimationResult } from '../../../types/shares';
+import { SuiClient } from '@mysten/sui/client';
 
 /**
  * Custom hook to estimate share price for a subject and amount.
  * Returns { data, isLoading, error } for UI-friendly error and loading handling.
  */
-export function usePriceEstimation(subjectAddress: string, amount: number) {
+export function usePriceEstimation(
+  packageId: string,
+  sharesTradingObjectId: string,
+  subjectAddress: string,
+  amount: number
+) {
   const [data, setData] = useState<PriceEstimationResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -15,7 +21,7 @@ export function usePriceEstimation(subjectAddress: string, amount: number) {
     if (!subjectAddress || !amount) return;
     setIsLoading(true);
     setError(null);
-    estimateSharePrice(subjectAddress, amount)
+    estimateSharePrice(packageId, sharesTradingObjectId, subjectAddress, amount)
       .then((res) => {
         setData(res);
         setError(null);
@@ -25,7 +31,7 @@ export function usePriceEstimation(subjectAddress: string, amount: number) {
         setData(null);
       })
       .finally(() => setIsLoading(false));
-  }, [subjectAddress, amount]);
+  }, [packageId, sharesTradingObjectId, subjectAddress, amount]);
 
   return { data, isLoading, error };
 } 

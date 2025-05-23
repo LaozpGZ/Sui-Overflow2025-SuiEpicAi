@@ -23,6 +23,7 @@ export async function generateStaticParams() {
 }
 
 // This must be a synchronous function, not async!
-export default function AgentDetailPage({ params }: { params: { name: string } }) {
-  return <AgentDetailClient name={params.name} />;
+export default async function AgentDetailPage({ params }: { params: { name: string } }) {
+  const { name } = await params;
+  return <AgentDetailClient name={name} />;
 } 

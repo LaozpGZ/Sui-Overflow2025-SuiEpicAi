@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { SuiClient } from '@mysten/sui/client';
-
-const SHARES_TRADING_OBJECT_ID = '0xd08d2d8f0c7df418dbc038e6a03c7e6e19ca73b49bf1bd279c4440d511a65edd';
+import { suiClient } from '../services/suiSharesService';
 
 export function useBuyPriceAfterFee(
-  suiClient: SuiClient,
+  packageId: string,
+  sharesTradingObjectId: string,
   subjectAddress: string,
   amount: number
 ) {
@@ -19,11 +18,11 @@ export function useBuyPriceAfterFee(
       setError(null);
       try {
         const resp = await suiClient.callMoveFunction({
-          package: SHARES_TRADING_OBJECT_ID,
+          package: packageId,
           module: 'shares_trading',
           function: 'get_buy_price_after_fee',
           arguments: [
-            SHARES_TRADING_OBJECT_ID,
+            sharesTradingObjectId,
             subjectAddress,
             amount.toString()
           ],
@@ -37,7 +36,7 @@ export function useBuyPriceAfterFee(
     }
     if (subjectAddress && amount > 0) fetchPrice();
     return () => { cancelled = true; };
-  }, [suiClient, subjectAddress, amount]);
+  }, [packageId, sharesTradingObjectId, subjectAddress, amount]);
 
   return { data, loading, error };
 } 

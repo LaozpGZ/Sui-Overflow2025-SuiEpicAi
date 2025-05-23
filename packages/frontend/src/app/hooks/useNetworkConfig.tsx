@@ -2,15 +2,8 @@ import { createNetworkConfig } from '@mysten/dapp-kit'
 import { getFullnodeUrl } from '@mysten/sui/client'
 import {
   CONTRACT_PACKAGE_VARIABLE_NAME,
-  DEVNET_CONTRACT_PACKAGE_ID,
-  DEVNET_EXPLORER_URL,
   EXPLORER_URL_VARIABLE_NAME,
-  LOCALNET_CONTRACT_PACKAGE_ID,
-  LOCALNET_EXPLORER_URL,
-  MAINNET_CONTRACT_PACKAGE_ID,
-  MAINNET_EXPLORER_URL,
-  TESTNET_CONTRACT_PACKAGE_ID,
-  TESTNET_EXPLORER_URL,
+  NETWORK_CONFIG
 } from '@/config/network'
 import { ENetwork } from '@/app/types/ENetwork'
 
@@ -19,29 +12,29 @@ const useNetworkConfig = () => {
     [ENetwork.LOCALNET]: {
       url: getFullnodeUrl(ENetwork.LOCALNET),
       variables: {
-        [CONTRACT_PACKAGE_VARIABLE_NAME]: LOCALNET_CONTRACT_PACKAGE_ID,
-        [EXPLORER_URL_VARIABLE_NAME]: LOCALNET_EXPLORER_URL,
+        [CONTRACT_PACKAGE_VARIABLE_NAME]: NETWORK_CONFIG.localnet.packageId,
+        [EXPLORER_URL_VARIABLE_NAME]: NETWORK_CONFIG.localnet.explorerUrl,
       },
     },
     [ENetwork.DEVNET]: {
       url: getFullnodeUrl(ENetwork.DEVNET),
       variables: {
-        [CONTRACT_PACKAGE_VARIABLE_NAME]: DEVNET_CONTRACT_PACKAGE_ID,
-        [EXPLORER_URL_VARIABLE_NAME]: DEVNET_EXPLORER_URL,
+        [CONTRACT_PACKAGE_VARIABLE_NAME]: NETWORK_CONFIG.devnet.packageId,
+        [EXPLORER_URL_VARIABLE_NAME]: NETWORK_CONFIG.devnet.explorerUrl,
       },
     },
     [ENetwork.TESTNET]: {
       url: getFullnodeUrl(ENetwork.TESTNET),
       variables: {
-        [CONTRACT_PACKAGE_VARIABLE_NAME]: TESTNET_CONTRACT_PACKAGE_ID,
-        [EXPLORER_URL_VARIABLE_NAME]: TESTNET_EXPLORER_URL,
+        [CONTRACT_PACKAGE_VARIABLE_NAME]: NETWORK_CONFIG.testnet.packageId,
+        [EXPLORER_URL_VARIABLE_NAME]: NETWORK_CONFIG.testnet.explorerUrl,
       },
     },
     [ENetwork.MAINNET]: {
       url: getFullnodeUrl(ENetwork.MAINNET),
       variables: {
-        [CONTRACT_PACKAGE_VARIABLE_NAME]: MAINNET_CONTRACT_PACKAGE_ID,
-        [EXPLORER_URL_VARIABLE_NAME]: MAINNET_EXPLORER_URL,
+        [CONTRACT_PACKAGE_VARIABLE_NAME]: NETWORK_CONFIG.mainnet.packageId,
+        [EXPLORER_URL_VARIABLE_NAME]: NETWORK_CONFIG.mainnet.explorerUrl,
       },
     },
   })

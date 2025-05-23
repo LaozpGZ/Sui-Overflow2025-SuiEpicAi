@@ -3,7 +3,7 @@ import { useUserSharesBalance } from './useUserSharesBalance';
 import { SuiClient } from '@mysten/sui/client';
 
 export function useAllUserSharesBalances(
-  suiClient: SuiClient,
+  sharesTradingObjectId: string,
   subjectAddresses: string[],
   walletAddress: string
 ) {
@@ -11,9 +11,9 @@ export function useAllUserSharesBalances(
   return useMemo(
     () =>
       subjectAddresses.map(subject => {
-        const { data, loading, error } = useUserSharesBalance(suiClient, subject, walletAddress);
+        const { data, loading, error } = useUserSharesBalance(sharesTradingObjectId, subject, walletAddress);
         return { subject, sharesAmount: data, loading, error };
       }),
-    [suiClient, subjectAddresses, walletAddress]
+    [sharesTradingObjectId, subjectAddresses, walletAddress]
   );
 } 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import React from 'react';
-import { useCurrentAccount } from '@mysten/dapp-kit';
+import { useSuiClient, useCurrentAccount } from '@mysten/dapp-kit';
 import { 
   getPriceEstimationParams, 
   getBuySharesParams, 
@@ -17,6 +17,7 @@ import { useTradeShares } from './hooks/useTradeShares';
 import toast from 'react-hot-toast';
 import { useSharesBalance } from './hooks/useSharesBalance';
 import { SuiClient } from '@mysten/sui/client';
+import { CURRENT_NETWORK_CONFIG } from '@/config/network';
 
 type TradeFormProps = {
   mode: 'buy' | 'sell';
@@ -37,43 +38,52 @@ export default function TradeForm({
   const [amount, setAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [suiBalance, setSuiBalance] = useState<bigint>(0n);
 
+  // Get SuiClient, network variables, and wallet from context
+  const suiClient = useSuiClient();
   const currentAccount = useCurrentAccount();
-  const address = currentAccount?.address;
-  
-  // ====== Testnet NetworkContractConfig (for demo only) ======
-  // You can later switch to dynamic network config
-  const TESTNET_SHARES_TRADING_OBJECT_ID = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef';
-  const TESTNET_FULLNODE_URL = 'https://fullnode.testnet.sui.io';
-  // Ensure suiClient is always defined before use
-  const suiClient = React.useMemo(() => new SuiClient({ url: TESTNET_FULLNODE_URL }), []);
-  // Always pass address as string|null
-  const suiAddress: string | null = address || null;
 
-  // Use the new useTradeShares signature (must be before any usage of isPending/isConfirming)
-  const { trade, isPending, isConfirming } = useTradeShares(onComplete, suiClient, suiAddress);
+  // Get objectId and packageId from network variables
+  const sharesTradingObjectId = CURRENT_NETWORK_CONFIG.sharesTradingObjectId;
+  const packageId = CURRENT_NETWORK_CONFIG.packageId;
+
+  // Pass wallet object to useTradeShares
+  const { trade, isPending, isConfirming } = useTradeShares(onComplete, suiClient, currentAccount);
 
   // Build config for usePriceEstimation
   const config = useMemo(() => ({
-    packageId: TESTNET_SHARES_TRADING_OBJECT_ID,
-    sharesTradingObjectId: TESTNET_SHARES_TRADING_OBJECT_ID,
+    packageId: CURRENT_NETWORK_CONFIG.packageId,
+    sharesTradingObjectId: CURRENT_NETWORK_CONFIG.sharesTradingObjectId,
     suiClient,
   }), [suiClient]);
 
   // Call usePriceEstimation with correct params and safely get estimatedPrice
-  const { data: priceEstimationData } = usePriceEstimation(subjectAddress, Number(amount));
+  const { data: priceEstimationData } = usePriceEstimation(
+    packageId,
+    sharesTradingObjectId,
+    subjectAddress,
+    Number(amount)
+  );
   const estimatedPrice = priceEstimationData?.price ?? null;
-  const { data: sharesSupplyData } = useSharesSupply(subjectAddress);
+  const { data: sharesSupplyData } = useSharesSupply(
+    sharesTradingObjectId,
+    subjectAddress
+  );
   const sharesSupply = sharesSupplyData?.supply ?? 0n;
   // Query on-chain balance (testnet only)
-  const { data: sharesBalanceData } = useSharesBalance(subjectAddress, userAddress);
+  const { data: sharesBalanceData } = useSharesBalance(
+    sharesTradingObjectId,
+    subjectAddress,
+    userAddress
+  );
   const chainBalance = sharesBalanceData?.balance ?? 0n;
 
   // Check if this is a first share self-purchase (shares supply = 0, buying own shares)
   const firstShareSelfPurchase = isFirstShareSelfPurchase(
     mode,
     subjectAddress,
-    address || '',
+    currentAccount?.address || '',
     sharesSupply.toString() || '0'
   );
 
@@ -106,6 +116,21 @@ export default function TradeForm({
     // }
   }, [subjectAddress, amount]);
 
+  // 查询用户 SUI 余额
+  useEffect(() => {
+    async function fetchBalance() {
+      if (currentAccount?.address && suiClient) {
+        const coins = await suiClient.getCoins({
+          owner: currentAccount.address,
+          coinType: '0x2::sui::SUI',
+        });
+        const total = coins.data.reduce((sum, coin) => sum + BigInt(coin.balance), 0n);
+        setSuiBalance(total);
+      }
+    }
+    fetchBalance();
+  }, [currentAccount, suiClient]);
+
   const handleSetMaxAmount = () => {
     if (mode === 'sell' && share) {
       setAmount(share.shares_amount);
@@ -136,7 +161,7 @@ export default function TradeForm({
       return;
     }
     // Guard: do not proceed if address or suiClient is not available
-    if (!suiAddress || !suiClient) {
+    if (!currentAccount?.address || !suiClient) {
       setError('Wallet not connected or SuiClient unavailable');
       toast.error('Wallet not connected or SuiClient unavailable');
       return;
@@ -159,6 +184,25 @@ export default function TradeForm({
       setIsLoading(false);
     }
   };
+
+  // 价格分解（假设合约 fee 逻辑为 5% protocol + 5% subject）
+  let principal = BigInt(0), protocolFee = BigInt(0), subjectFee = BigInt(0), total = BigInt(0);
+  if (estimatedPrice) {
+    // 这里假设 estimatedPrice 是总价，反推本金和 fee（如需更精确可后端返回详细分解）
+    // 你可以根据合约 fee 逻辑调整
+    // total = principal + protocolFee + subjectFee
+    // protocolFee = principal * 0.05
+    // subjectFee = principal * 0.05
+    // total = principal * 1.1
+    // principal = estimatedPrice / 1.1
+    principal = BigInt(Math.floor(Number(estimatedPrice) / 1.1));
+    protocolFee = BigInt(Math.floor(Number(principal) * 0.05));
+    subjectFee = BigInt(Math.floor(Number(principal) * 0.05));
+    total = principal + protocolFee + subjectFee;
+  }
+
+  // 检查余额是否足够
+  const isBalanceEnough = mode === 'buy' ? (estimatedPrice !== null && suiBalance >= BigInt(estimatedPrice)) : true;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
@@ -236,12 +280,26 @@ export default function TradeForm({
             {mode === 'sell' && (
               <div className="text-xs text-blue-300 mt-1">On-chain balance: {chainBalance.toString()}</div>
             )}
+            {mode === 'buy' && (
+              <div className="text-xs text-blue-300 mt-1">Your SUI balance: {formatPrice(suiBalance)} SUI</div>
+            )}
+            {mode === 'buy' && !isBalanceEnough && (
+              <div className="text-xs text-red-400 mt-1">Insufficient SUI balance. You need at least {formatPrice(estimatedPrice)} SUI.</div>
+            )}
             {estimatedPrice && (
               <div className="p-2 bg-[#232b3a] rounded mt-2">
-                <p className="text-sm font-medium text-slate-200">
+                <p className="text-sm font-medium text-slate-200 mb-1">
                   {mode === 'buy' ? 'Estimated Total Cost' : 'Estimated Total Proceeds'}:
-                  <span className="font-bold ml-1 text-white">{formatPrice(estimatedPrice)} MON</span>
+                  <span className="font-bold ml-1 text-white">{formatPrice(estimatedPrice)} SUI</span>
                 </p>
+                {mode === 'buy' && (
+                  <div className="text-xs text-slate-300 space-y-1 mt-1">
+                    <div>Principal: <span className="font-mono">{formatPrice(principal)} SUI</span></div>
+                    <div>Protocol Fee: <span className="font-mono">{formatPrice(protocolFee)} SUI</span></div>
+                    <div>Subject Fee: <span className="font-mono">{formatPrice(subjectFee)} SUI</span></div>
+                    <div className="font-bold">Total: <span className="font-mono">{formatPrice(total)} SUI</span></div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -257,7 +315,7 @@ export default function TradeForm({
             <button
               type="submit"
               className={`px-4 py-2 rounded text-white font-medium flex items-center gap-2 transition shadow-md ${mode === 'buy' ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600' : 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600'}`}
-              disabled={isLoading || isPending || isConfirming}
+              disabled={isLoading || isPending || isConfirming || (mode === 'buy' && !isBalanceEnough)}
             >
               {(isLoading || isPending || isConfirming) && (
                 <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>

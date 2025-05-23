@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
-import { SuiClient } from '@mysten/sui/client';
+import { suiClient } from '../services/suiSharesService';
 
-const SHARES_TRADING_OBJECT_ID = '0xd08d2d8f0c7df418dbc038e6a03c7e6e19ca73b49bf1bd279c4440d511a65edd';
-
-export function useAllSubjects(suiClient: SuiClient) {
+export function useAllSubjects(sharesTradingObjectId: string) {
   const [data, setData] = useState<string[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,10 +13,12 @@ export function useAllSubjects(suiClient: SuiClient) {
       setError(null);
       try {
         const sharesTradingObj = await suiClient.getObject({
-          id: SHARES_TRADING_OBJECT_ID,
+          id: sharesTradingObjectId,
           options: { showContent: true }
         });
-        const sharesSupplyTableId = sharesTradingObj.data.content.fields.shares_supply;
+        const content = sharesTradingObj?.data?.content as any;
+        const sharesSupplyTableId = content?.fields?.shares_supply;
+        if (!sharesSupplyTableId) throw new Error('shares_supply not found');
         const subjects = await suiClient.getDynamicFields({ parentId: sharesSupplyTableId });
         if (!cancelled) setData(subjects.data.map((item: any) => item.name.value));
       } catch (e: any) {
@@ -29,7 +29,7 @@ export function useAllSubjects(suiClient: SuiClient) {
     }
     fetchSubjects();
     return () => { cancelled = true; };
-  }, [suiClient]);
+  }, [sharesTradingObjectId]);
 
   return { data, loading, error };
 } 

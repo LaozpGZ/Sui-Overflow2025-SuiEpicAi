@@ -7,12 +7,12 @@ import { SuiClient } from '@mysten/sui/client';
  * Handles transaction state, error, and completion callback.
  * @param onComplete - Callback when transaction is confirmed
  * @param suiClient - SuiClient instance for submitting transactions
- * @param senderAddress - The user's wallet address
+ * @param walletAdapter - Wallet adapter object for signing
  */
 export function useTradeShares(
   onComplete: () => void,
   suiClient: SuiClient | null,
-  senderAddress: string | null
+  walletAdapter: any // Accept wallet object
 ) {
   const [isPending, setIsPending] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
@@ -31,8 +31,8 @@ export function useTradeShares(
     amount: string,
     estimatedPrice?: string
   ) {
-    if (!suiClient || !senderAddress) {
-      setError('Missing SuiClient or sender address');
+    if (!suiClient || !walletAdapter) {
+      setError('Missing SuiClient or wallet');
       return;
     }
     setIsPending(true);
@@ -45,10 +45,10 @@ export function useTradeShares(
       } else {
         tx = getSellSharesParams(subjectAddress, amount);
       }
-      // Submit transaction
-      await suiClient.signAndExecuteTransactionBlock({
-        transactionBlock: tx,
-        signer: senderAddress,
+      // Submit transaction using wallet adapter as signer
+      await suiClient.signAndExecuteTransaction({
+        transaction: tx,
+        signer: walletAdapter,
       });
       setIsConfirming(true);
       onComplete();

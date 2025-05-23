@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
 import { getSharesSupply } from '../services/suiSharesService';
 import { SharesSupplyResult } from '../../../types/shares';
+import { SuiClient } from '@mysten/sui/client';
 
 /**
  * Custom hook to fetch shares supply for a subject address.
  * Returns { data, isLoading, error } for UI-friendly error and loading handling.
  */
-export function useSharesSupply(subjectAddress: string) {
+export function useSharesSupply(
+  sharesTradingObjectId: string,
+  subjectAddress: string
+) {
   const [data, setData] = useState<SharesSupplyResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -15,7 +19,7 @@ export function useSharesSupply(subjectAddress: string) {
     if (!subjectAddress) return;
     setIsLoading(true);
     setError(null);
-    getSharesSupply(subjectAddress)
+    getSharesSupply(sharesTradingObjectId, subjectAddress)
       .then((res) => {
         setData(res);
         setError(null);
@@ -25,7 +29,7 @@ export function useSharesSupply(subjectAddress: string) {
         setData(null);
       })
       .finally(() => setIsLoading(false));
-  }, [subjectAddress]);
+  }, [sharesTradingObjectId, subjectAddress]);
 
   return { data, isLoading, error };
 } 

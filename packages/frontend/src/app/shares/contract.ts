@@ -44,57 +44,66 @@ export interface PriceEstimationResult {
   price: bigint;
 }
 
-// Build a Transaction for the buy_shares entry function
-// Needs SharesTrading object ID, shares_subject address, amount, and payment coin
+/**
+ * Build a Transaction for the buy_shares entry function.
+ * @param subjectAddress The subject address.
+ * @param amount The amount to buy.
+ * @param estimatedPrice The estimated price.
+ * @returns Transaction
+ */
 export function getBuySharesParams(subjectAddress: string, amount: string, estimatedPrice: string): Transaction {
   const tx = new Transaction();
-  // Package ID is a constant for now, but should be dynamic
-  const packageId = SUI_PACKAGE_ID;
-  const sharesTradingObjectId = SHARES_TRADING_OBJECT_ID; // Use the object ID
+  const packageId = String(SUI_PACKAGE_ID);
+  const sharesTradingObjectId = String(SHARES_TRADING_OBJECT_ID);
 
-  // **TODO: Correctly handle SUI coin payment in TransactionBlock**
-  // You need to get the sender's SUI coin and split/transfer the required amount (estimatedPrice)
-  // This often involves selecting a coin from the sender's account
-  
-  // Example (may need adjustment based on coin management strategy):
-  const [paymentCoin] = tx.splitCoins(tx.gas, [tx.pure(BigInt(estimatedPrice))]); // Assuming tx.gas is the primary coin
-  
+  const [paymentCoin] = tx.splitCoins(tx.gas, [tx.pure.u64(BigInt(estimatedPrice))]);
 
   tx.moveCall({
     target: `${packageId}::${MODULE_NAME}::buy_shares`,
     arguments: [
-      tx.object(sharesTradingObjectId), // SharesTrading object ID (shared object)
-      tx.pure(validateAddress(subjectAddress)), // shares_subject: address
-      tx.pure(parseAmount(amount)), // amount: u64
-      paymentCoin, // payment: Coin<SUI>
+      tx.object(sharesTradingObjectId),
+      tx.pure.address(validateAddress(subjectAddress)),
+      tx.pure.u64(parseAmount(amount)),
+      paymentCoin,
     ],
   });
 
-  return tx; // Return the built TransactionBlock
+  return tx;
 }
 
-// Build a Transaction for the sell_shares entry function
-// Needs SharesTrading object ID, shares_subject address, and amount
+/**
+ * Build a Transaction for the sell_shares entry function.
+ * @param subjectAddress The subject address.
+ * @param amount The amount to sell.
+ * @returns Transaction
+ */
 export function getSellSharesParams(subjectAddress: string, amount: string): Transaction {
-   const tx = new Transaction();
-   // Package ID is a constant for now, but should be dynamic
-   const packageId = SUI_PACKAGE_ID;
-   const sharesTradingObjectId = SHARES_TRADING_OBJECT_ID; // Use the object ID
+  const tx = new Transaction();
+  const packageId = String(SUI_PACKAGE_ID);
+  const sharesTradingObjectId = String(SHARES_TRADING_OBJECT_ID);
 
   tx.moveCall({
-     target: `${packageId}::${MODULE_NAME}::sell_shares`,
-     arguments: [
-       tx.object(sharesTradingObjectId), // SharesTrading object ID (shared object)
-       tx.pure(validateAddress(subjectAddress)), // shares_subject: address
-       tx.pure(parseAmount(amount)), // amount: u64
-     ],
-   });
+    target: `${packageId}::${MODULE_NAME}::sell_shares`,
+    arguments: [
+      tx.object(sharesTradingObjectId),
+      tx.pure.address(validateAddress(subjectAddress)),
+      tx.pure.u64(parseAmount(amount)),
+    ],
+  });
 
-   return tx; // Return the built TransactionBlock
+  return tx;
 }
 
 // -------------------- Transaction Parameter Builders --------------------
 
+/**
+ * Build a Transaction for buying shares with custom config.
+ * @param config Network contract config.
+ * @param subjectAddress The subject address.
+ * @param amount The amount to buy.
+ * @param estimatedPrice The estimated price.
+ * @returns Transaction
+ */
 export function getBuySharesTx(
   config: NetworkContractConfig,
   subjectAddress: string,
@@ -103,19 +112,26 @@ export function getBuySharesTx(
 ): Transaction {
   const tx = new Transaction();
   const { packageId, sharesTradingObjectId } = config;
-  const [paymentCoin] = tx.splitCoins(tx.gas, [tx.pure(BigInt(estimatedPrice))]);
+  const [paymentCoin] = tx.splitCoins(tx.gas, [tx.pure.u64(BigInt(estimatedPrice))]);
   tx.moveCall({
-    target: `${packageId}::${MODULE_NAME}::buy_shares`,
+    target: `${String(packageId)}::${MODULE_NAME}::buy_shares`,
     arguments: [
-      tx.object(sharesTradingObjectId),
-      tx.pure(validateAddress(subjectAddress)),
-      tx.pure(parseAmount(amount)),
+      tx.object(String(sharesTradingObjectId)),
+      tx.pure.address(validateAddress(subjectAddress)),
+      tx.pure.u64(parseAmount(amount)),
       paymentCoin,
     ],
   });
   return tx;
 }
 
+/**
+ * Build a Transaction for selling shares with custom config.
+ * @param config Network contract config.
+ * @param subjectAddress The subject address.
+ * @param amount The amount to sell.
+ * @returns Transaction
+ */
 export function getSellSharesTx(
   config: NetworkContractConfig,
   subjectAddress: string,
@@ -124,56 +140,17 @@ export function getSellSharesTx(
   const tx = new Transaction();
   const { packageId, sharesTradingObjectId } = config;
   tx.moveCall({
-    target: `${packageId}::${MODULE_NAME}::sell_shares`,
+    target: `${String(packageId)}::${MODULE_NAME}::sell_shares`,
     arguments: [
-      tx.object(sharesTradingObjectId),
-      tx.pure(validateAddress(subjectAddress)),
-      tx.pure(parseAmount(amount)),
+      tx.object(String(sharesTradingObjectId)),
+      tx.pure.address(validateAddress(subjectAddress)),
+      tx.pure.u64(parseAmount(amount)),
     ],
   });
   return tx;
 }
 
 // -------------------- On-chain Query Parameter Builders & Utilities --------------------
-
-// fetchSharesSupply
-export async function fetchSharesSupply(
-  config: NetworkContractConfig,
-  subjectAddress: string
-): Promise<SharesSupplyResult> {
-  const { suiClient, sharesTradingObjectId } = config;
-  // Sui dynamic field query
-  const resp = await suiClient.getDynamicFieldObject({
-    parentId: sharesTradingObjectId,
-    name: { type: 'address', value: validateAddress(subjectAddress) },
-  });
-  // The value is in resp.data.content.fields.value
-  const value = (resp?.data?.content as any)?.fields?.value;
-  return { supply: toBigIntSafe(value) };
-}
-
-// fetchSharesBalance
-export async function fetchSharesBalance(
-  config: NetworkContractConfig,
-  subjectAddress: string,
-  userAddress: string
-): Promise<SharesBalanceResult> {
-  const { suiClient, sharesTradingObjectId } = config;
-  // 1. Query subject -> Table<address, u64> objectId
-  const subjectField = await suiClient.getDynamicFieldObject({
-    parentId: sharesTradingObjectId,
-    name: { type: 'address', value: validateAddress(subjectAddress) },
-  });
-  const subjectTableId = (subjectField?.data?.content as any)?.fields?.value?.fields?.id?.id;
-  if (!subjectTableId) return { balance: 0n };
-  // 2. Query user -> u64
-  const userField = await suiClient.getDynamicFieldObject({
-    parentId: subjectTableId,
-    name: { type: 'address', value: validateAddress(userAddress) },
-  });
-  const value = (userField?.data?.content as any)?.fields?.value;
-  return { balance: toBigIntSafe(value) };
-}
 
 // Price estimation parameters (for useSuiClientQuery)
 export function getPriceEstimationParams(

@@ -1,53 +1,62 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// @ts-ignore
+
+declare const process: {
+  env: Record<string, string | undefined>;
+};
+
 // Sui network config for different environments
-export type SuiNetwork = 'testnet' | 'mainnet' | 'devnet';
+export type SuiNetwork = 'testnet' | 'mainnet' | 'devnet' | 'localnet';
 
 export interface SuiNetworkConfig {
   packageId: string;
-  sharesTradingObjectId: string;
+  sharesTradingObjectId?: string;
   fullnodeUrl: string;
+  explorerUrl: string;
 }
 
 export const NETWORK_CONFIG: Record<SuiNetwork, SuiNetworkConfig> = {
   testnet: {
-    packageId: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
-    sharesTradingObjectId: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd',
+    packageId: process.env.NEXT_PUBLIC_TESTNET_PACKAGE_ID || '0xNOT_SET',
+    sharesTradingObjectId: process.env.NEXT_PUBLIC_TESTNET_SHARES_TRADING_OBJECT_ID || '0xNOT_SET',
     fullnodeUrl: 'https://fullnode.testnet.sui.io',
+    explorerUrl: 'https://testnet.suivision.xyz',
   },
   mainnet: {
-    packageId: '0xMAINNET_PACKAGE_ID',
-    sharesTradingObjectId: '0xMAINNET_SHARES_TRADING_OBJECT_ID',
+    packageId: process.env.NEXT_PUBLIC_MAINNET_PACKAGE_ID || '0xNOT_SET',
+    sharesTradingObjectId: process.env.NEXT_PUBLIC_MAINNET_SHARES_TRADING_OBJECT_ID || '0xNOT_SET',
     fullnodeUrl: 'https://fullnode.mainnet.sui.io',
+    explorerUrl: 'https://suivision.xyz',
   },
   devnet: {
-    packageId: '0xDEVNET_PACKAGE_ID',
-    sharesTradingObjectId: '0xDEVNET_SHARES_TRADING_OBJECT_ID',
+    packageId: process.env.NEXT_PUBLIC_DEVNET_PACKAGE_ID || '0xNOT_SET',
+    sharesTradingObjectId: process.env.NEXT_PUBLIC_DEVNET_SHARES_TRADING_OBJECT_ID || '0xNOT_SET',
     fullnodeUrl: 'https://fullnode.devnet.sui.io',
+    explorerUrl: 'https://devnet.suivision.xyz',
+  },
+  localnet: {
+    packageId: process.env.NEXT_PUBLIC_LOCALNET_CONTRACT_PACKAGE_ID || '0xNOT_SET',
+    fullnodeUrl: 'http://localhost:9000',
+    explorerUrl: 'http://localhost:9001',
   },
 };
 
-export const CURRENT_NETWORK: SuiNetwork = (process.env.NEXT_PUBLIC_SUI_NETWORK as SuiNetwork) || 'testnet';
+export const CURRENT_NETWORK: SuiNetwork =
+  (process.env.NEXT_PUBLIC_SUI_NETWORK as SuiNetwork) || 'testnet';
+
 export const CURRENT_NETWORK_CONFIG = NETWORK_CONFIG[CURRENT_NETWORK];
 
-// 以下为原 app/config/network.ts 的变量
-export const CONTRACT_PACKAGE_ID_NOT_DEFINED = '0xNOTDEFINED';
-export const LOCALNET_CONTRACT_PACKAGE_ID =
-  process.env.NEXT_PUBLIC_LOCALNET_CONTRACT_PACKAGE_ID ||
-  CONTRACT_PACKAGE_ID_NOT_DEFINED;
-export const DEVNET_CONTRACT_PACKAGE_ID =
-  process.env.NEXT_PUBLIC_DEVNET_CONTRACT_PACKAGE_ID ||
-  CONTRACT_PACKAGE_ID_NOT_DEFINED;
-export const TESTNET_CONTRACT_PACKAGE_ID =
-  process.env.NEXT_PUBLIC_TESTNET_CONTRACT_PACKAGE_ID ||
-  CONTRACT_PACKAGE_ID_NOT_DEFINED;
-export const MAINNET_CONTRACT_PACKAGE_ID =
-  process.env.NEXT_PUBLIC_MAINNET_CONTRACT_PACKAGE_ID ||
-  CONTRACT_PACKAGE_ID_NOT_DEFINED;
+// 合约包 ID 统一管理
+export const CONTRACT_PACKAGE_IDS: Record<SuiNetwork, string> = {
+  testnet: NETWORK_CONFIG.testnet.packageId,
+  mainnet: NETWORK_CONFIG.mainnet.packageId,
+  devnet: NETWORK_CONFIG.devnet.packageId,
+  localnet: NETWORK_CONFIG.localnet.packageId,
+};
 
-export const LOCALNET_EXPLORER_URL = 'http://localhost:9001';
-export const DEVNET_EXPLORER_URL = 'https://devnet.suivision.xyz';
-export const TESTNET_EXPLORER_URL = 'https://testnet.suivision.xyz';
-export const MAINNET_EXPLORER_URL = 'https://suivision.xyz';
-
+// 变量名常量
 export const CONTRACT_PACKAGE_VARIABLE_NAME = 'contractPackageId';
 export const EXPLORER_URL_VARIABLE_NAME = 'explorerUrl';
-export const NETWORKS_WITH_FAUCET = ['localnet', 'devnet', 'testnet']; 
+
+// 支持 faucet 的网络
+export const NETWORKS_WITH_FAUCET: SuiNetwork[] = ['localnet', 'devnet', 'testnet']; 

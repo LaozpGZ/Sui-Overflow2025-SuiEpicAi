@@ -1,6 +1,5 @@
 import { SuiObjectResponse } from '@mysten/sui/client'
 import { isValidSuiObjectId } from '@mysten/sui/utils'
-import { CONTRACT_PACKAGE_ID_NOT_DEFINED } from '@/config/network'
 import { CONTRACT_MODULE_NAME } from '~~/dapp/config/network'
 import { ENetwork } from '@/app/types/ENetwork'
 
@@ -33,7 +32,7 @@ export const supportedNetworks = () => {
             null &&
           process.env[
             `NEXT_PUBLIC_${key.toUpperCase()}_CONTRACT_PACKAGE_ID`
-          ] !== CONTRACT_PACKAGE_ID_NOT_DEFINED
+          ] !== '0xNOT_SET'
       )
       // @ts-expect-error Hard to type cast string->ENetwork here.
       .map((key: string) => ENetwork[key as ENetwork])

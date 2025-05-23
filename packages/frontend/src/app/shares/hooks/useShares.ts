@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Share } from '../types';
 import { getSharesList, getShareDetail } from '../services/suiSharesService';
+import { SuiClient } from '@mysten/sui/client';
 
-export function useShares(subjectAddress?: string) {
+export function useShares(
+  sharesTradingObjectId: string,
+  subjectAddress?: string
+) {
   const [shares, setShares] = useState<Share[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -12,10 +16,10 @@ export function useShares(subjectAddress?: string) {
     try {
       let data;
       if (subjectAddress) {
-        data = await getShareDetail(subjectAddress);
+        data = await getShareDetail(sharesTradingObjectId, subjectAddress);
         setShares(data ? [data] : []);
       } else {
-        data = await getSharesList();
+        data = await getSharesList(sharesTradingObjectId);
         setShares(data);
       }
       setError(null);
@@ -30,7 +34,7 @@ export function useShares(subjectAddress?: string) {
   useEffect(() => {
     fetchShares();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subjectAddress]);
+  }, [sharesTradingObjectId, subjectAddress]);
 
   return { shares, isLoading, error, refetch: fetchShares };
 } 

@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
 import { getSharesBalance } from '../services/suiSharesService';
 import { SharesBalanceResult } from '../../../types/shares';
+import { SuiClient } from '@mysten/sui/client';
 
 /**
  * Custom hook to fetch shares balance for a user and subject address.
  * Returns { data, isLoading, error } for UI-friendly error and loading handling.
  */
-export function useSharesBalance(subjectAddress: string, userAddress: string) {
+export function useSharesBalance(
+  sharesTradingObjectId: string,
+  subjectAddress: string,
+  userAddress: string
+) {
   const [data, setData] = useState<SharesBalanceResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -15,7 +20,7 @@ export function useSharesBalance(subjectAddress: string, userAddress: string) {
     if (!subjectAddress || !userAddress) return;
     setIsLoading(true);
     setError(null);
-    getSharesBalance(subjectAddress, userAddress)
+    getSharesBalance(sharesTradingObjectId, subjectAddress, userAddress)
       .then((res) => {
         setData(res);
         setError(null);
@@ -25,7 +30,7 @@ export function useSharesBalance(subjectAddress: string, userAddress: string) {
         setData(null);
       })
       .finally(() => setIsLoading(false));
-  }, [subjectAddress, userAddress]);
+  }, [sharesTradingObjectId, subjectAddress, userAddress]);
 
   return { data, isLoading, error };
 } 

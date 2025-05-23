@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useCurrentAccount } from '@mysten/dapp-kit';
+import { useCurrentAccount, useSuiClient } from '@mysten/dapp-kit';
 import Image from 'next/image';
 import GradientBackground from '@/components/AnimatedBackground';
 import SharesTable from './SharesTable';
@@ -20,11 +20,23 @@ export default function SharesPage() {
   const currentAccount = useCurrentAccount();
   const walletAddress = currentAccount?.address;
   const isWalletConnected = !!walletAddress;
-  const suiClient = new SuiClient({ url: 'https://fullnode.testnet.sui.io:443' });
-  const { data: subjects, loading: loadingSubjects, error: errorSubjects } = useAllSubjects(suiClient);
-  const userShares = useAllUserSharesBalances(suiClient, subjects || [], walletAddress || '');
+  const network = process.env.NEXT_PUBLIC_SUI_NETWORK;
+  let sharesTradingObjectId = '';
+
+  if (network === 'testnet') {
+    sharesTradingObjectId = process.env.NEXT_PUBLIC_TESTNET_SHARES_TRADING_OBJECT_ID as string;
+  } else if (network === 'mainnet') {
+    sharesTradingObjectId = process.env.NEXT_PUBLIC_MAINNET_SHARES_TRADING_OBJECT_ID as string;
+  } else if (network === 'devnet') {
+    sharesTradingObjectId = process.env.NEXT_PUBLIC_DEVNET_SHARES_TRADING_OBJECT_ID as string;
+  } else if (network === 'localnet') {
+    sharesTradingObjectId = process.env.NEXT_PUBLIC_LOCALNET_SHARES_TRADING_OBJECT_ID as string;
+  }
 
   const { tradeMode, selectedShare, openBuy, openSell, closeTradeForm } = useSharesStore();
+
+  const { data: subjects, loading: loadingSubjects, error: errorSubjects } = useAllSubjects(sharesTradingObjectId);
+  const userShares = useAllUserSharesBalances(sharesTradingObjectId, subjects || [], walletAddress || '');
 
   const handleTradeComplete = () => {
     closeTradeForm();
