@@ -2,7 +2,6 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
-  distDir: "dist",
   reactStrictMode: true,
   transpilePackages: [
     "@mysten/dapp-kit",
