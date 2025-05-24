@@ -21,6 +21,5 @@ Docs/
 .env
 
 # Ignore old frontend directory
-packages/frontend/old/
-.vercel
+
 .env*.local
