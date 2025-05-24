@@ -1,6 +1,4 @@
 import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import CreateAgentForm from '~~/components/CreateAgentForm';
 
 export default function CreateAgent() {

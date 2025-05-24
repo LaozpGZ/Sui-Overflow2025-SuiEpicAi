@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { getBuySharesParams, getSellSharesParams } from '../contract';
 import { SuiClient } from '@mysten/sui/client';
 
@@ -12,7 +12,7 @@ import { SuiClient } from '@mysten/sui/client';
 export function useTradeShares(
   onComplete: () => void,
   suiClient: SuiClient | null,
-  walletAdapter: any // Accept wallet object
+  walletAdapter: unknown // Accept wallet object
 ) {
   const [isPending, setIsPending] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);

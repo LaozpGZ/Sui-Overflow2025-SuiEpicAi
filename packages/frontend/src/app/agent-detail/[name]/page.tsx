@@ -16,7 +16,7 @@ export async function generateStaticParams() {
       (v, i, a) => a.findIndex(t => t.name === v.name) === i
     );
     return allParams;
-  } catch (e) {
+  } catch {
     // If fetch fails, fallback to static test param
     return staticTestParams;
   }

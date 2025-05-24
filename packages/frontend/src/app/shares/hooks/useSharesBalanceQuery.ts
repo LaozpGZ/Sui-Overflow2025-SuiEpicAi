@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getSharesBalance } from '../services/suiSharesService';
 import { SharesBalanceResult } from '../../../types/shares';
-import { SuiClient } from '@mysten/sui/client';
 
 /**
  * Query shares balance for a given subjectAddress and userAddress

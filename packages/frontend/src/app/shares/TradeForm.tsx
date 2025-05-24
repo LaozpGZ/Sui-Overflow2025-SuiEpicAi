@@ -3,11 +3,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import React from 'react';
 import { useSuiClient, useCurrentAccount } from '@mysten/dapp-kit';
-import { 
-  getPriceEstimationParams, 
-  getBuySharesParams, 
-  getSellSharesParams
-} from './contract';
 import { formatPrice, isFirstShareSelfPurchase } from './utils/contractUtils';
 import { Share } from '@/types/shares';
 import { usePriceEstimation } from './hooks/usePriceEstimation';
@@ -16,8 +11,9 @@ import { validateTradeForm } from './utils/validateTradeForm';
 import { useTradeShares } from './hooks/useTradeShares';
 import toast from 'react-hot-toast';
 import { useSharesBalance } from './hooks/useSharesBalance';
-import { SuiClient } from '@mysten/sui/client';
 import { CURRENT_NETWORK_CONFIG } from '@/config/network';
+import Loading from '@/app/components/Loading';
+import ErrorMessage from '@/app/components/ErrorMessage';
 
 type TradeFormProps = {
   mode: 'buy' | 'sell';
@@ -50,13 +46,6 @@ export default function TradeForm({
 
   // Pass wallet object to useTradeShares
   const { trade, isPending, isConfirming } = useTradeShares(onComplete, suiClient, currentAccount);
-
-  // Build config for usePriceEstimation
-  const config = useMemo(() => ({
-    packageId: CURRENT_NETWORK_CONFIG.packageId,
-    sharesTradingObjectId: CURRENT_NETWORK_CONFIG.sharesTradingObjectId,
-    suiClient,
-  }), [suiClient]);
 
   // Call usePriceEstimation with correct params and safely get estimatedPrice
   const { data: priceEstimationData } = usePriceEstimation(
@@ -209,15 +198,8 @@ export default function TradeForm({
       {/* Modal: use deep dark background, white text */}
       <div className="bg-[#181f2a]/90 rounded-2xl shadow-2xl p-6 w-full max-w-md relative animate-scaleIn overflow-hidden">
         {/* Loading overlay */}
-        {(isLoading || isPending || isConfirming) && (
-          <div className="absolute inset-0 bg-[#181f2a]/80 flex flex-col items-center justify-center z-20 rounded-2xl">
-            <svg className="w-12 h-12 text-blue-400 animate-spin mb-2" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
-            </svg>
-            <span className="text-blue-200 font-semibold">Processing...</span>
-          </div>
-        )}
+        {(isLoading || isPending || isConfirming) && <Loading />}
+        {error && <ErrorMessage message={error} />}
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-t-2xl" />
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold text-white">
@@ -231,12 +213,6 @@ export default function TradeForm({
             <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
-        {error && (
-          <div className="mb-4 p-2 bg-red-900/40 border border-red-400 text-red-200 rounded text-sm flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12A9 9 0 113 12a9 9 0 0118 0z" /></svg>
-            {error}
-          </div>
-        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'buy' && (
             <div>

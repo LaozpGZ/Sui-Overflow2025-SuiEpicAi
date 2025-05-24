@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { suiClient } from '../services/suiSharesService';
+import { getBuyPriceAfterFee } from '../services/suiSharesService';
 
 export function useBuyPriceAfterFee(
   packageId: string,
@@ -17,19 +17,10 @@ export function useBuyPriceAfterFee(
       setLoading(true);
       setError(null);
       try {
-        const resp = await suiClient.callMoveFunction({
-          package: packageId,
-          module: 'shares_trading',
-          function: 'get_buy_price_after_fee',
-          arguments: [
-            sharesTradingObjectId,
-            subjectAddress,
-            amount.toString()
-          ],
-        });
-        if (!cancelled) setData(Number(resp.results[0]));
-      } catch (e: any) {
-        if (!cancelled) setError(e.message || 'Failed to fetch buy price');
+        const price = await getBuyPriceAfterFee(packageId, sharesTradingObjectId, subjectAddress, amount);
+        if (!cancelled) setData(price);
+      } catch (e: unknown) {
+        if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to fetch buy price');
       } finally {
         if (!cancelled) setLoading(false);
       }

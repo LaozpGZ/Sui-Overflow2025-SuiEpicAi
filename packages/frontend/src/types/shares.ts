@@ -24,5 +24,5 @@ export interface PriceEstimationResult {
 export interface NetworkContractConfig {
   packageId: string;
   sharesTradingObjectId: string;
-  suiClient: any; // SuiClient type
+  suiClient: unknown; // SuiClient type
 } 

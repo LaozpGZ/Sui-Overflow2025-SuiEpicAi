@@ -6,11 +6,9 @@ import { fetchAgentDetail, AgentDetail } from '@/components/agentService';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useCurrentAccount } from '@mysten/dapp-kit';
 import { useSharesBalance } from '@/hooks/useSharesBalance';
-import { useRouter } from 'next/navigation';
 import TradeForm from '@/app/shares/TradeForm';
 
 export default function AgentDetailClient({ name }: { name: string }) {
-  const router = useRouter();
   const currentAccount = useCurrentAccount();
   const walletAddress = currentAccount?.address;
   const isWalletConnected = !!walletAddress;
@@ -54,7 +52,7 @@ export default function AgentDetailClient({ name }: { name: string }) {
         const data = await fetchAgentDetail(encodedName);
         setAgent(data);
         setError('');
-      } catch (err) {
+      } catch {
         setError('Failed to load agent details. Please try again later.');
         setAgent(null);
       } finally {

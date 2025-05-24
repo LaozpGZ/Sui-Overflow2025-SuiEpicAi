@@ -60,8 +60,14 @@ export function useAgentList({ pageSize = 12, apiFetch }: UseAgentListOptions = 
             setTotal(total);
           }
         }
-      } catch (e: any) {
-        if (!cancelled) setError(e.message || 'Failed to fetch agents');
+      } catch (e: unknown) {
+        if (!cancelled) {
+          if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
+            setError((e as { message: string }).message);
+          } else {
+            setError('Failed to fetch agents');
+          }
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }

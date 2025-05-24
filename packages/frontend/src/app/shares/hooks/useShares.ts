@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Share } from '../types';
 import { getSharesList, getShareDetail } from '../services/suiSharesService';
-import { SuiClient } from '@mysten/sui/client';
 
 export function useShares(
   sharesTradingObjectId: string,

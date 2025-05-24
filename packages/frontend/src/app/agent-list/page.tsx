@@ -51,8 +51,12 @@ function Page() {
       }
       setAgents(result);
       setTotalPages(Math.max(1, Math.ceil(result.length / pageSize)));
-    } catch (err: any) {
-      setError(err.message || 'Failed to load agents.');
+    } catch (err: unknown) {
+      if (typeof err === 'object' && err !== null && 'message' in err && typeof (err as { message?: unknown }).message === 'string') {
+        setError((err as { message: string }).message);
+      } else {
+        setError('Failed to load agents.');
+      }
       setAgents([]);
     } finally {
       setLoading(false);

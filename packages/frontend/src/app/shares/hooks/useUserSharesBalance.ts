@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getSharesBalance } from '../services/suiSharesService';
 import { SharesBalanceResult } from '../../../types/shares';
-import { SuiClient } from '@mysten/sui/client';
 
 export function useUserSharesBalance(
   sharesTradingObjectId: string,

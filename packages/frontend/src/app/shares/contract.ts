@@ -1,9 +1,9 @@
 // import { parseEther } from 'viem'; // Removed EVM specific import
-import { WEB3_CONFIG } from '@/config/api'; // Assuming API_CONFIG has web3 related configs
-import { SuiClient, getFullnodeUrl } from '@mysten/sui/client'; // Import Sui Client
+// import { WEB3_CONFIG } from '@/config/api'; // Assuming API_CONFIG has web3 related configs
+import { SuiClient } from '@mysten/sui/client'; // Import Sui Client
 import { Transaction } from '@mysten/sui/transactions'; // Import Transaction builder
-import { ENetwork } from '@/types/ENetwork';
-import { validateAddress, parseAmount, toBigIntSafe } from './utils/contractUtils';
+// import { ENetwork } from '@/types/ENetwork';
+import { validateAddress, parseAmount } from './utils/contractUtils';
 import { CURRENT_NETWORK_CONFIG } from '@/config/network';
 // import useNetworkConfig from '@/hooks/useNetworkConfig'; // Moved network config logic elsewhere
 // import { 

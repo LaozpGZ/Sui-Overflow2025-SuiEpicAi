@@ -3,7 +3,7 @@
 import { useCurrentAccount } from '@mysten/dapp-kit'
 import { Link } from '@radix-ui/themes'
 import Faucet from '@suiware/kit/Faucet'
-import { HeartIcon, SearchIcon } from 'lucide-react'
+import { SearchIcon } from 'lucide-react'
 import {
   CONTRACT_PACKAGE_VARIABLE_NAME,
   EXPLORER_URL_VARIABLE_NAME,

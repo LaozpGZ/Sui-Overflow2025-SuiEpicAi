@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { suiClient } from '../services/suiSharesService';
+import { getAllSubjects } from '../services/suiSharesService';
 
 export function useAllSubjects(sharesTradingObjectId: string) {
   const [data, setData] = useState<string[] | null>(null);
@@ -12,17 +12,14 @@ export function useAllSubjects(sharesTradingObjectId: string) {
       setLoading(true);
       setError(null);
       try {
-        const sharesTradingObj = await suiClient.getObject({
-          id: sharesTradingObjectId,
-          options: { showContent: true }
-        });
-        const content = sharesTradingObj?.data?.content as any;
-        const sharesSupplyTableId = content?.fields?.shares_supply;
-        if (!sharesSupplyTableId) throw new Error('shares_supply not found');
-        const subjects = await suiClient.getDynamicFields({ parentId: sharesSupplyTableId });
-        if (!cancelled) setData(subjects.data.map((item: any) => item.name.value));
-      } catch (e: any) {
-        if (!cancelled) setError(e.message || 'Failed to fetch subjects');
+        const subjects = await getAllSubjects(sharesTradingObjectId);
+        if (!cancelled) setData(subjects);
+      } catch (e: unknown) {
+        if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
+          if (!cancelled) setError((e as { message: string }).message);
+        } else {
+          if (!cancelled) setError('Failed to fetch subjects');
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }

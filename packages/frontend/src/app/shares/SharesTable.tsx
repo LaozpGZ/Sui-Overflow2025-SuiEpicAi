@@ -1,19 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import { Share } from '@/types/shares';
-import { useUserSharesBalance } from './hooks/useUserSharesBalance';
-import { SuiClient } from '@mysten/sui/client';
+import Loading from '@/app/components/Loading';
+import ErrorMessage from '@/app/components/ErrorMessage';
+import type { SharesBalanceResult } from '@/types/shares';
 
 // Props for SharesTable
 export type SharesTableProps = {
-  userShares: { subject: string; sharesAmount: number | { balance: bigint } | null; loading: boolean; error: string | null }[];
+  userShares: { subject: string; sharesAmount: SharesBalanceResult | null; loading: boolean; error: string | null }[];
   onSell: (subjectAddress: string, sharesAmount: string) => void;
 };
 
-function getDisplayAmount(sharesAmount: number | { balance: bigint } | null): string {
-  if (sharesAmount == null) return '0';
-  if (typeof sharesAmount === 'number') return sharesAmount.toString();
+function getDisplayAmount(sharesAmount: SharesBalanceResult | null): string {
+  if (!sharesAmount) return '0';
   if (typeof sharesAmount === 'object' && 'balance' in sharesAmount) return sharesAmount.balance.toString();
   return '0';
 }
@@ -43,7 +41,7 @@ export default function SharesTable({ userShares, onSell }: SharesTableProps) {
                 {subject}
               </td>
               <td className="py-3 px-4 text-xs md:text-sm text-white">
-                {loading ? <span>Loading...</span> : error ? <span style={{color:'red'}}>Failed to fetch</span> : getDisplayAmount(sharesAmount)}
+                {loading ? <Loading /> : error ? <ErrorMessage message={error} /> : getDisplayAmount(sharesAmount)}
               </td>
               <td className="py-3 px-4 text-right">
                 {sharesAmount && !loading && !error && (

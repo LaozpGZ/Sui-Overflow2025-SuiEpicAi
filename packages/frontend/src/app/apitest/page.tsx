@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { fetchAgents, searchAgentByName, Agent } from '@/components/agentService';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -52,7 +52,7 @@ function EnvVarsPanel() {
 
 function ApiTestPanel() {
   const API_BASE = process.env.NEXT_PUBLIC_SERVER_API || 'https://38.54.24.5/api';
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
 
   // Example parameters
@@ -76,8 +76,12 @@ function ApiTestPanel() {
         }),
       });
       setResult(await res.json());
-    } catch (e) {
-      setResult({ error: e + '' });
+    } catch (e: unknown) {
+      if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
+        setResult({ error: (e as { message: string }).message });
+      } else {
+        setResult({ error: String(e) });
+      }
     }
     setLoading(false);
   };
@@ -88,8 +92,12 @@ function ApiTestPanel() {
     try {
       const res = await fetch(`${API_BASE}/agents?page=1&page_size=5`);
       setResult(await res.json());
-    } catch (e) {
-      setResult({ error: e + '' });
+    } catch (e: unknown) {
+      if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
+        setResult({ error: (e as { message: string }).message });
+      } else {
+        setResult({ error: String(e) });
+      }
     }
     setLoading(false);
   };
@@ -100,8 +108,12 @@ function ApiTestPanel() {
     try {
       const res = await fetch(`${API_BASE}/agents/${testAgentName}`);
       setResult(await res.json());
-    } catch (e) {
-      setResult({ error: e + '' });
+    } catch (e: unknown) {
+      if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
+        setResult({ error: (e as { message: string }).message });
+      } else {
+        setResult({ error: String(e) });
+      }
     }
     setLoading(false);
   };
@@ -112,8 +124,12 @@ function ApiTestPanel() {
     try {
       const res = await fetch(`${API_BASE}/agent/detail/${testAgentName}`);
       setResult(await res.json());
-    } catch (e) {
-      setResult({ error: e + '' });
+    } catch (e: unknown) {
+      if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
+        setResult({ error: (e as { message: string }).message });
+      } else {
+        setResult({ error: String(e) });
+      }
     }
     setLoading(false);
   };
@@ -124,8 +140,12 @@ function ApiTestPanel() {
     try {
       const res = await fetch(`${API_BASE}/users/${testUser}/shares/${testChain}`);
       setResult(await res.json());
-    } catch (e) {
-      setResult({ error: e + '' });
+    } catch (e: unknown) {
+      if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
+        setResult({ error: (e as { message: string }).message });
+      } else {
+        setResult({ error: String(e) });
+      }
     }
     setLoading(false);
   };
@@ -165,7 +185,7 @@ function AgentSearchPanel() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Load agents with pagination
-  const loadAgents = async () => {
+  const loadAgents = useCallback(async () => {
     setLoading(true);
     try {
       const data = await fetchAgents(page, pageSize);
@@ -179,11 +199,11 @@ function AgentSearchPanel() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize]);
 
   // Search for a specific agent
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = async (_e: React.FormEvent) => {
+    _e.preventDefault();
     
     if (!searchTerm.trim()) {
       loadAgents();
@@ -196,8 +216,7 @@ function AgentSearchPanel() {
       setAgents(results);
       setTotalPages(1); // Reset pagination for search results
       setError('');
-    } catch (err) {
-      console.error('Error searching for agent:', err);
+    } catch {
       setError('Agent not found or error occurred during search.');
       setAgents([]);
     } finally {
@@ -205,12 +224,12 @@ function AgentSearchPanel() {
     }
   };
 
-  // Load agents when component mounts or page changes
+  // Load agents when component mounts or page/searchTerm changes
   useEffect(() => {
     if (!searchTerm) {
       loadAgents();
     }
-  }, [page]);
+  }, [page, searchTerm, loadAgents]);
 
   // Handle page navigation
   const goToPage = (newPage: number) => {
@@ -224,7 +243,7 @@ function AgentSearchPanel() {
     try {
       const date = new Date(dateString);
       return date.toLocaleString();
-    } catch (e) {
+    } catch {
       return dateString;
     }
   };
@@ -315,9 +334,10 @@ function AgentSearchPanel() {
             ) : !loading && (
               <tr>
                 <td colSpan={3} className="px-6 py-4">
-                  <EmptyState 
-                    message={searchTerm ? `No agents found for "${searchTerm}"` : "No agents available"}
-                  />
+                  <EmptyState />
+                  <div className="text-center text-gray-500 mt-2">
+                    {searchTerm ? `No agents found for "${searchTerm}"` : "No agents available"}
+                  </div>
                 </td>
               </tr>
             )}

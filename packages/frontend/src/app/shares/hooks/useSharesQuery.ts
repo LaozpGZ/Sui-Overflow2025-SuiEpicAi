@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getSharesList, getShareDetail } from '../services/suiSharesService';
 import { Share } from '../../../types/shares';
-import { SuiClient } from '@mysten/sui/client';
 
 /**
  * Get shares list or single share detail

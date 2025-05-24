@@ -1,4 +1,3 @@
-import { parseEther } from 'viem';
 import { WEB3_CONFIG } from '@/app/config/config';
 
 // Contract configuration

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getSharesBalance } from '../services/suiSharesService';
 import { SharesBalanceResult } from '../../../types/shares';
-import { SuiClient } from '@mysten/sui/client';
 
 /**
  * Custom hook to fetch shares balance for a user and subject address.

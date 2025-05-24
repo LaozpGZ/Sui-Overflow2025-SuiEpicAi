@@ -1,4 +1,5 @@
 import React from 'react';
+import CustomConnectButton from './CustomConnectButton';
 
 // Hero section with title, description, and call-to-action buttons
 const HeroSection = () => (
@@ -11,9 +12,7 @@ const HeroSection = () => (
     </p>
     {/* Call to Action: Connect Wallet and Learn More */}
     <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
-      <button className="px-8 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
-        Connect your Sui Wallet
-      </button>
+      <CustomConnectButton />
       <a href="#learn-more" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium">
         Learn More →
       </a>

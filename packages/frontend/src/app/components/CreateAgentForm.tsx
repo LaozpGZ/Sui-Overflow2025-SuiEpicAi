@@ -7,15 +7,7 @@ import { Button, TextField, TextArea, Spinner, Callout } from '@radix-ui/themes'
 import { useCurrentAccount } from '@mysten/dapp-kit';
 import CustomConnectButton from './CustomConnectButton';
 import { useDebounce } from '@/hooks/useDebounce';
-import { AI_FRAME_CONFIG, API_CONFIG, WEB3_CONFIG } from '@/config/api';
-import { z } from 'zod';
-
-// Error message component
-const ErrorMessage = ({ message }: { message: string }) => (
-  <Callout.Root color="red" className="mb-4">
-    <Callout.Text>{message}</Callout.Text>
-  </Callout.Root>
-);
+import { API_CONFIG } from '@/config/api';
 
 // Loading spinner component
 const Loading = () => (
@@ -24,40 +16,9 @@ const Loading = () => (
   </div>
 );
 
-// Wallet connection prompt component
-const WalletConnectSection = ({ isWalletConnected, walletAddress, connectWallet }: any) => (
-  <div className="bg-gray-100 p-4 rounded-md mb-4">
-    <div className="flex items-center justify-between">
-      <div>
-        <h3 className="text-sm font-medium">Wallet Connection</h3>
-        <p className="text-xs text-gray-500">
-          {isWalletConnected
-            ? `Connected: ${walletAddress?.substring(0, 6)}...${walletAddress?.substring(walletAddress.length - 4)}`
-            : 'Please connect your wallet to create an agent'}
-        </p>
-      </div>
-      {!isWalletConnected && (
-        <Button onClick={connectWallet} size="2" variant="solid">
-          Connect Wallet
-        </Button>
-      )}
-    </div>
-  </div>
-);
-
-// Define form validation schema
-const agentFormSchema = z.object({
-  agentName: z.string().min(1, 'Agent name is required'),
-  telegramToken: z.string().min(1, 'Telegram Bot Token is required'),
-  telegramGroupId: z.string().regex(/^\-\d+$/, 'Invalid group ID format'),
-  agentBio: z.string().min(1, 'Agent bio is required'),
-  telegramInviteUrl: z.string().regex(/^https:\/\/t\.me\/\+[a-zA-Z0-9_-]+$/, 'Invalid Telegram invite URL'),
-});
-
 export default function CreateAgentForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [agentName, setAgentName] = useState('');
   const [isChecking, setIsChecking] = useState(false);
   const [nameExists, setNameExists] = useState(false);
@@ -72,20 +33,6 @@ export default function CreateAgentForm() {
   const walletAddress = currentAccount?.address;
   const isWalletConnected = !!walletAddress;
 
-  // Validation logic
-  const telegramInviteUrlRegex = /^https:\/\/t\.me\/\+[a-zA-Z0-9_-]+$/;
-  const isTelegramUrlValid = telegramInviteUrlRegex.test(telegramInviteUrl);
-  const isGroupIdValid = /^-\d+$/.test(telegramGroupId);
-  const formValidation = agentFormSchema.safeParse({
-    agentName,
-    telegramToken,
-    telegramGroupId,
-    agentBio,
-    telegramInviteUrl,
-  });
-  const isFormValid = formValidation.success && !nameExists && isWalletConnected;
-  const zodErrors = formValidation.success ? {} : formValidation.error.formErrors.fieldErrors;
-
   // Check if agent name already exists
   useEffect(() => {
     const checkAgentNameExists = async () => {
@@ -95,8 +42,7 @@ export default function CreateAgentForm() {
         const response = await fetch(`${API_CONFIG.SERVER_API}/agents/${debouncedName}`);
         const data = await response.json();
         setNameExists(data.agent !== null);
-      } catch (error) {
-        // Network error does not block the process
+      } catch {
         setNameExists(false);
       } finally {
         setIsChecking(false);
@@ -108,25 +54,13 @@ export default function CreateAgentForm() {
   // Form submission
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
     setIsLoading(true);
     try {
       // Wallet not connected
       if (!isWalletConnected) {
-        setError('Please connect your wallet first');
         setIsLoading(false);
         return;
       }
-      // Validation
-      if (!isFormValid) {
-        setError('Please fill all fields correctly');
-        setIsLoading(false);
-        return;
-      }
-      // Use subject_address as agentId directly
-      // const agentId = walletAddress;
-      // Generate agent data (keep agentData variable for future use, but do not request /agents/{id}/set)
-      // const agentData = { ... };
       // Only keep add_tg_bot request
       const addTelegramBotResponse = await fetch(`${API_CONFIG.SERVER_API}/add_tg_bot`, {
         method: 'POST',
@@ -147,11 +81,8 @@ export default function CreateAgentForm() {
       setTimeout(() => {
         router.push('/');
       }, 1500);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error occurred');
-    } finally {
-      setIsLoading(false);
-    }
+    } catch {}
+    setIsLoading(false);
   };
 
   // Show connect button if wallet is not connected
@@ -182,12 +113,6 @@ export default function CreateAgentForm() {
       <h1 className="text-2xl font-bold text-center mb-6 bg-gradient-to-r from-sds-blue to-sds-pink bg-clip-text text-transparent">
         Create Agent
       </h1>
-      {error && (
-        <Callout.Root color="red" className="mb-6 flex items-center">
-          <Callout.Icon />
-          <Callout.Text>{error}</Callout.Text>
-        </Callout.Root>
-      )}
       {/* Wallet info (optional) */}
       <div className="mb-4 text-sm text-gray-500">Wallet: {walletAddress?.slice(0, 6)}...{walletAddress?.slice(-4)}</div>
       {/* Basic Info Section */}
@@ -206,13 +131,12 @@ export default function CreateAgentForm() {
             value={agentName}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAgentName(e.target.value)}
             required
-            color={nameExists || zodErrors.agentName ? 'red' : undefined}
+            color={nameExists ? 'red' : undefined}
             size="3"
             className="rounded-lg shadow-sm focus:ring-2 focus:ring-sds-blue transition-all"
           />
           {isChecking && <div className="text-xs text-gray-500 mt-1">Checking availability...</div>}
           {nameExists && <div className="text-xs text-red-500 mt-1">This agent name already exists. Please choose another name.</div>}
-          {zodErrors.agentName && <div className="text-xs text-red-500 mt-1">{zodErrors.agentName[0]}</div>}
         </div>
         <div className="mb-6">
           <label htmlFor="agentBio" className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
@@ -228,7 +152,6 @@ export default function CreateAgentForm() {
             size="3"
             className="rounded-lg shadow-sm focus:ring-2 focus:ring-sds-blue transition-all"
           />
-          {zodErrors.agentBio && <div className="text-xs text-red-500 mt-1">{zodErrors.agentBio[0]}</div>}
         </div>
         <div className="mb-6">
           <label htmlFor="agentImage" className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
@@ -265,7 +188,6 @@ export default function CreateAgentForm() {
             size="3"
             className="rounded-lg shadow-sm focus:ring-2 focus:ring-sds-blue transition-all"
           />
-          {zodErrors.telegramToken && <div className="text-xs text-red-500 mt-1">{zodErrors.telegramToken[0]}</div>}
         </div>
         <div className="mb-6">
           <label htmlFor="telegramGroupId" className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
@@ -278,12 +200,10 @@ export default function CreateAgentForm() {
             value={telegramGroupId}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTelegramGroupId(e.target.value)}
             required
-            color={zodErrors.telegramGroupId ? 'red' : undefined}
             size="3"
             className="rounded-lg shadow-sm focus:ring-2 focus:ring-sds-blue transition-all"
           />
           <div className="text-xs text-gray-500 mt-1">Must be a negative number (e.g., -1001234567890)</div>
-          {zodErrors.telegramGroupId && <div className="text-xs text-red-500 mt-1">{zodErrors.telegramGroupId[0]}</div>}
         </div>
         <div className="mb-6">
           <label htmlFor="telegramInviteUrl" className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
@@ -296,12 +216,10 @@ export default function CreateAgentForm() {
             value={telegramInviteUrl}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTelegramInviteUrl(e.target.value)}
             required
-            color={zodErrors.telegramInviteUrl ? 'red' : undefined}
             size="3"
             className="rounded-lg shadow-sm focus:ring-2 focus:ring-sds-blue transition-all"
           />
           <div className="text-xs text-gray-500 mt-1">Must be a valid Telegram invite URL (e.g., https://t.me/+7Ev9E8aomwk5YzI1)</div>
-          {zodErrors.telegramInviteUrl && <div className="text-xs text-red-500 mt-1">{zodErrors.telegramInviteUrl[0]}</div>}
         </div>
       </div>
       {/* Action Buttons */}
@@ -321,7 +239,7 @@ export default function CreateAgentForm() {
           type="submit"
           variant="solid"
           size="3"
-          disabled={!isFormValid || isLoading}
+          disabled={!isWalletConnected || isLoading}
           className="rounded-lg bg-gradient-to-r from-sds-blue to-sds-pink text-white font-semibold shadow-md transition-all hover:scale-105 hover:from-sds-pink hover:to-sds-blue"
         >
           {isLoading ? 'Creating...' : 'Create Agent'}

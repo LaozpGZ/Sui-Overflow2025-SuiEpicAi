@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { estimateSharePrice } from '../services/suiSharesService';
 import { PriceEstimationResult } from '../../../types/shares';
-import { SuiClient } from '@mysten/sui/client';
 
 /**
  * Custom hook to estimate share price for a subject and amount.

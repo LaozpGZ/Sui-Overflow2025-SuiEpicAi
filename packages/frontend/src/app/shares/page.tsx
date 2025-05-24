@@ -1,20 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useCurrentAccount, useSuiClient } from '@mysten/dapp-kit';
 import Image from 'next/image';
 import GradientBackground from '@/components/AnimatedBackground';
 import SharesTable from './SharesTable';
 import TradeForm from './TradeForm';
-import { API_CONFIG } from '@/config/api';
-import { Share } from '@/types/shares';
 import { useSharesStore } from './store/useSharesStore';
 import CustomConnectButton from '../components/CustomConnectButton';
-import { notification } from '../helpers/notification';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import { SuiClient } from '@mysten/sui/client';
 import { useAllSubjects } from './hooks/useAllSubjects';
-import { useAllUserSharesBalances } from './hooks/useAllUserSharesBalances';
+import { useUserSharesBalance } from './hooks/useUserSharesBalance';
+import Loading from '@/app/components/Loading';
+import ErrorMessage from '@/app/components/ErrorMessage';
+import { useCurrentAccount } from '@mysten/dapp-kit';
+import type { SharesBalanceResult } from '@/types/shares';
 
 export default function SharesPage() {
   const currentAccount = useCurrentAccount();
@@ -36,17 +33,136 @@ export default function SharesPage() {
   const { tradeMode, selectedShare, openBuy, openSell, closeTradeForm } = useSharesStore();
 
   const { data: subjects, loading: loadingSubjects, error: errorSubjects } = useAllSubjects(sharesTradingObjectId);
-  const userShares = useAllUserSharesBalances(sharesTradingObjectId, subjects || [], walletAddress || '');
+
+  // 支持最多100个subject，静态展开hooks
+  const MAX_SUBJECTS = 100;
+  const paddedSubjects = Array.from({ length: MAX_SUBJECTS }, (_, i) => subjects?.[i] || null);
+
+  const balances = [
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[0] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[1] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[2] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[3] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[4] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[5] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[6] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[7] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[8] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[9] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[10] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[11] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[12] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[13] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[14] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[15] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[16] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[17] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[18] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[19] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[20] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[21] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[22] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[23] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[24] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[25] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[26] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[27] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[28] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[29] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[30] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[31] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[32] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[33] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[34] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[35] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[36] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[37] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[38] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[39] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[40] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[41] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[42] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[43] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[44] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[45] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[46] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[47] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[48] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[49] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[50] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[51] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[52] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[53] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[54] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[55] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[56] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[57] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[58] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[59] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[60] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[61] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[62] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[63] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[64] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[65] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[66] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[67] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[68] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[69] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[70] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[71] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[72] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[73] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[74] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[75] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[76] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[77] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[78] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[79] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[80] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[81] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[82] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[83] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[84] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[85] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[86] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[87] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[88] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[89] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[90] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[91] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[92] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[93] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[94] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[95] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[96] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[97] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[98] || '', walletAddress || ''),
+    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[99] || '', walletAddress || ''),
+  ];
+
+  const userShares = (paddedSubjects
+    .map((subject, i) =>
+      subject
+        ? {
+            subject,
+            sharesAmount: balances[i].data,
+            loading: balances[i].loading,
+            error: balances[i].error,
+          }
+        : null
+    )
+    .filter(Boolean)) as { subject: string; sharesAmount: SharesBalanceResult | null; loading: boolean; error: string | null }[];
 
   const handleTradeComplete = () => {
     closeTradeForm();
   };
 
   if (loadingSubjects) {
-    return <LoadingSpinner />;
+    return <Loading />;
   }
   if (errorSubjects) {
-    return <div className="error-block">Failed to fetch on-chain data. Please check your network connection or try again later.<br />{errorSubjects}</div>;
+    return <ErrorMessage message={errorSubjects} />;
   }
 
   return (
@@ -88,7 +204,7 @@ export default function SharesPage() {
           <>
             {userShares.length === 0 ? (
               <div className="text-center py-8">
-                <p>You don't have any Shares yet</p>
+                <p>You don&apos;t have any Shares yet</p>
               </div>
             ) : (
               <>

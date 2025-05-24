@@ -1,5 +1,6 @@
 import React from 'react';
 import { Agent } from '@/app/agent-list/types';
+import Image from 'next/image';
 
 interface AgentCardProps {
   agent: Agent;
@@ -11,9 +12,11 @@ const AgentCard: React.FC<AgentCardProps> = ({ agent }) => {
   return (
     <div className="rounded-xl border-2 border-transparent hover:border-blue-400 transition p-4 bg-white shadow-sm flex flex-col">
       {imgSrc && (
-        <img
+        <Image
           src={imgSrc}
           alt={agent.name}
+          width={320}
+          height={160}
           className="w-full h-40 object-cover rounded-lg mb-4"
         />
       )}

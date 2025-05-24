@@ -14,9 +14,7 @@ const NetworkSupportChecker = () => {
     return <></>
   }
 
-  // @fixme: Find a better type for the networkType.
-  /* eslint-disable  @typescript-eslint/no-explicit-any */
-  if (networkType == null || isNetworkSupported(networkType as any)) {
+  if (networkType == null || isNetworkSupported(networkType as unknown)) {
     return <></>
   }
 

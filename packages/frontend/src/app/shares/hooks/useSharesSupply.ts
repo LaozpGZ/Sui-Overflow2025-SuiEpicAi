@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getSharesSupply } from '../services/suiSharesService';
 import { SharesSupplyResult } from '../../../types/shares';
-import { SuiClient } from '@mysten/sui/client';
 
 /**
  * Custom hook to fetch shares supply for a subject address.

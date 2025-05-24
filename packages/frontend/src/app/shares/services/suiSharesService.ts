@@ -56,7 +56,7 @@ export async function getSharesBalance(sharesTradingObjectId: string, subjectAdd
     if (!subjectField) return { balance: 0n };
     // 2. Get subjectField object content, extract subjectTableId
     const subjectFieldObj = await suiClient.getObject({ id: subjectField.objectId });
-    const subjectTableId = (subjectFieldObj?.data?.content as any)?.fields?.value?.fields?.id?.id;
+    const subjectTableId = (subjectFieldObj?.data?.content as unknown)?.fields?.value?.fields?.id?.id;
     if (!subjectTableId) return { balance: 0n };
     // 3. Get userField
     const userFields = await suiClient.getDynamicFields({ parentId: subjectTableId });
@@ -64,7 +64,7 @@ export async function getSharesBalance(sharesTradingObjectId: string, subjectAdd
     if (!userField) return { balance: 0n };
     // 4. Get userField object content, extract balance
     const userFieldObj = await suiClient.getObject({ id: userField.objectId });
-    const value = (userFieldObj?.data?.content as any)?.fields?.value;
+    const value = (userFieldObj?.data?.content as unknown)?.fields?.value;
     return { balance: value ? BigInt(value) : 0n };
   } catch (err) {
     console.error('[getSharesBalance] On-chain query failed:', err);
@@ -81,7 +81,7 @@ export async function getSharesSupply(sharesTradingObjectId: string, subjectAddr
     if (!subjectField) return { supply: 0n };
     // 2. Get subjectField object content, extract supply
     const subjectFieldObj = await suiClient.getObject({ id: subjectField.objectId });
-    const value = (subjectFieldObj?.data?.content as any)?.fields?.value;
+    const value = (subjectFieldObj?.data?.content as unknown)?.fields?.value;
     return { supply: value ? BigInt(value) : 0n };
   } catch (err) {
     console.error('[getSharesSupply] On-chain query failed:', err);
@@ -135,7 +135,7 @@ export async function fetchSharesSupply(
     parentId: sharesTradingObjectId,
     name: { type: 'address', value: subjectAddress },
   });
-  const value = (resp?.data?.content as any)?.fields?.value;
+  const value = (resp?.data?.content as unknown)?.fields?.value;
   return { supply: value ? BigInt(value) : 0n };
 }
 
@@ -149,12 +149,121 @@ export async function fetchSharesBalance(
     parentId: sharesTradingObjectId,
     name: { type: 'address', value: subjectAddress },
   });
-  const subjectTableId = (subjectField?.data?.content as any)?.fields?.value?.fields?.id?.id;
+  const subjectTableId = (subjectField?.data?.content as unknown)?.fields?.value?.fields?.id?.id;
   if (!subjectTableId) return { balance: 0n };
   const userField = await suiClient.getDynamicFieldObject({
     parentId: subjectTableId,
     name: { type: 'address', value: userAddress },
   });
-  const value = (userField?.data?.content as any)?.fields?.value;
+  const value = (userField?.data?.content as unknown)?.fields?.value;
   return { balance: value ? BigInt(value) : 0n };
-} 
+}
+
+/**
+ * Get the total shares supply for a given subject from the on-chain Table.
+ * @param sharesTradingObjectId The objectId of the SharesTrading contract instance
+ * @param subjectAddress The address of the subject whose shares supply you want to query
+ * @returns The shares supply as a number
+ * @throws Error if shares_supply table or value not found
+ *
+ * Example usage in React:
+ *   const supply = await getSubjectSupply(sharesTradingObjectId, subjectAddress);
+ */
+export async function getSubjectSupply(
+  sharesTradingObjectId: string,
+  subjectAddress: string
+): Promise<number> {
+  try {
+    // 1. Fetch the SharesTrading contract object
+    const sharesTradingObj = await suiClient.getObject({
+      id: sharesTradingObjectId,
+      options: { showContent: true }
+    });
+    // 2. Extract the shares_supply Table objectId
+    const content = sharesTradingObj?.data?.content as unknown;
+    const sharesSupplyTableId = content?.fields?.shares_supply;
+    if (!sharesSupplyTableId) throw new Error('shares_supply not found');
+    // 3. Query the Table for the subject's supply
+    const supplyObj = await suiClient.getDynamicFieldObject({
+      parentId: sharesSupplyTableId,
+      name: { type: 'address', value: subjectAddress }
+    });
+    const supplyValue = (supplyObj?.data?.content as unknown)?.fields?.value;
+    return Number(supplyValue);
+  } catch (e: unknown) {
+    throw new Error(e instanceof Error ? e.message : 'Failed to fetch subject supply');
+  }
+}
+
+// 获取所有 subject 列表（兼容原 useAllSubjects 逻辑）
+export async function getAllSubjects(sharesTradingObjectId: string): Promise<string[]> {
+  try {
+    const sharesTradingObj = await suiClient.getObject({
+      id: sharesTradingObjectId,
+      options: { showContent: true }
+    });
+    const content = sharesTradingObj?.data?.content as unknown;
+    const sharesSupplyTableId = content?.fields?.shares_supply;
+    if (!sharesSupplyTableId) throw new Error('shares_supply not found');
+    const subjects = await suiClient.getDynamicFields({ parentId: sharesSupplyTableId });
+    return subjects.data.map((item: { name: { value: string } }) => item.name.value);
+  } catch (e: unknown) {
+    throw new Error(e instanceof Error ? e.message : 'Failed to fetch subjects');
+  }
+}
+
+// 获取买入价格（带 fee），兼容 useBuyPriceAfterFee
+export async function getBuyPriceAfterFee(
+  packageId: string,
+  sharesTradingObjectId: string,
+  subjectAddress: string,
+  amount: number
+): Promise<number> {
+  try {
+    const tx = new Transaction();
+    tx.moveCall({
+      target: `${packageId}::shares_trading::get_buy_price_after_fee`,
+      arguments: [
+        tx.pure.address(sharesTradingObjectId),
+        tx.pure.address(subjectAddress),
+        tx.pure.u64(amount),
+      ],
+    });
+    const resp = await suiClient.devInspectTransactionBlock({
+      sender: '0x0',
+      transactionBlock: tx,
+    });
+    const results = resp.results?.[0]?.returnValues?.[0];
+    if (!results) throw new Error('No return value from devInspectTransactionBlock');
+    return Number(results[0][0]);
+  } catch (e: unknown) {
+    throw new Error(e instanceof Error ? e.message : 'Failed to fetch buy price after fee');
+  }
+}
+
+// 获取 SUI 余额，兼容 useSuiBalance
+export async function getSuiBalance(address: string): Promise<bigint> {
+  try {
+    const coins = await suiClient.getCoins({
+      owner: address,
+      coinType: '0x2::sui::SUI',
+    });
+    const total = coins.data.reduce((sum: bigint, coin: { balance: string }) => sum + BigInt(coin.balance), 0n);
+    return total;
+  } catch (e: unknown) {
+    throw new Error(e instanceof Error ? e.message : 'Failed to fetch SUI balance');
+  }
+}
+
+/**
+ * Example React component usage:
+ *
+ * import { useSubjectSupply } from '../hooks/useSubjectSupply';
+ *
+ * function SupplyDisplay({ sharesTradingObjectId, subjectAddress }) {
+ *   const { data: supply, loading, error } = useSubjectSupply(sharesTradingObjectId, subjectAddress);
+ *   if (loading) return <div>Loading...</div>;
+ *   if (error) return <div>Error: {error}</div>;
+ *   return <div>Current shares supply: {supply}</div>;
+ * }
+ */ 

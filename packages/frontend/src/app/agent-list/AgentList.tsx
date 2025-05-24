@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import Image from 'next/image';
 
 interface Agent {
   id: string;
@@ -32,9 +33,11 @@ const AgentList: React.FC<AgentListProps> = ({ agents, page, totalPages, onPageC
                 key={agent.id}
                 className="rounded-xl border-2 border-transparent hover:border-blue-400 transition p-4 bg-white shadow-sm flex flex-col"
               >
-                <img
+                <Image
                   src={agent.image}
                   alt={agent.name}
+                  width={320}
+                  height={160}
                   className="w-full h-40 object-cover rounded-lg mb-4"
                 />
                 <div className="font-bold text-lg mb-1">{agent.name}</div>

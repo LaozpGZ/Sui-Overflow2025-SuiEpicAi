@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { suiClient } from '../services/suiSharesService';
+import { getSubjectSupply } from '../services/suiSharesService';
 
 export function useSubjectSupply(
   sharesTradingObjectId: string,
@@ -15,21 +15,10 @@ export function useSubjectSupply(
       setLoading(true);
       setError(null);
       try {
-        const sharesTradingObj = await suiClient.getObject({
-          id: sharesTradingObjectId,
-          options: { showContent: true }
-        });
-        const content = sharesTradingObj?.data?.content as any;
-        const sharesSupplyTableId = content?.fields?.shares_supply;
-        if (!sharesSupplyTableId) throw new Error('shares_supply not found');
-        const supplyObj = await suiClient.getDynamicFieldObject({
-          parentId: sharesSupplyTableId,
-          name: { type: 'address', value: subjectAddress }
-        });
-        const supplyValue = (supplyObj?.data?.content as any)?.fields?.value;
-        if (!cancelled) setData(Number(supplyValue));
-      } catch (e: any) {
-        if (!cancelled) setError(e.message || 'Failed to fetch supply');
+        const supply = await getSubjectSupply(sharesTradingObjectId, subjectAddress);
+        if (!cancelled) setData(supply);
+      } catch (e: unknown) {
+        if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to fetch supply');
       } finally {
         if (!cancelled) setLoading(false);
       }

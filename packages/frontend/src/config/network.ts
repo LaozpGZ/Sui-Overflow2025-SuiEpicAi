@@ -1,10 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-// @ts-ignore
-
-declare const process: {
-  env: Record<string, string | undefined>;
-};
-
 // Sui network config for different environments
 export type SuiNetwork = 'testnet' | 'mainnet' | 'devnet' | 'localnet';
 
