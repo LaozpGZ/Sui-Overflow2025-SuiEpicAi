@@ -52,18 +52,17 @@ export default function TradeForm({
   const { trade, isPending, isConfirming } = useTradeShares(onComplete, suiClient, currentWallet);
 
   // Call usePriceEstimation with correct params and safely get estimatedPrice
-  const { data: priceEstimationData } = usePriceEstimation(
+  const { price, loading, error: priceEstimationError } = usePriceEstimation(
     packageId!,
     sharesTradingObjectId!,
     subjectAddress!,
     Number(amount)
   );
-  const estimatedPrice = priceEstimationData?.price ?? null;
-  const { data: sharesSupplyData } = useSharesSupply(
+  const estimatedPrice = price ?? null;
+  const { supply: sharesSupply } = useSharesSupply(
     sharesTradingObjectId!,
     subjectAddress!
   );
-  const sharesSupply = sharesSupplyData?.supply ?? 0n;
   // Query on-chain balance (testnet only)
   const { data: sharesBalanceData } = useSharesBalance(
     sharesTradingObjectId!,
@@ -150,7 +149,7 @@ export default function TradeForm({
     setError(null);
     if (!validateForm()) {
       // Show error as toast
-      if (error) toast.error(error);
+      if (priceEstimationError) toast.error(priceEstimationError);
       return;
     }
     // Guard: do not proceed if address or suiClient is not available
@@ -281,6 +280,10 @@ export default function TradeForm({
                   </div>
                 )}
               </div>
+            )}
+            {/* Show loading state for price estimation */}
+            {loading && (
+              <div className="text-xs text-blue-400 mt-2">Estimating price...</div>
             )}
           </div>
           <div className="flex justify-end gap-3 pt-2">

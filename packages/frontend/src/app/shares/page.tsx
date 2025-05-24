@@ -146,7 +146,7 @@ export default function SharesPage() {
       subject
         ? {
             subject,
-            sharesAmount: balances[i].data,
+            sharesAmount: { balance: balances[i].balance }, // The user's share balance for the subject
             loading: balances[i].loading,
             error: balances[i].error,
           }

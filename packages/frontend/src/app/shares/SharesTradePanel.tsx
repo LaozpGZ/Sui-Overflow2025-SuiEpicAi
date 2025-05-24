@@ -6,6 +6,8 @@ import { useSharesSupply } from './hooks/useSharesSupply';
 import { useUserSharesBalance } from './hooks/useUserSharesBalance';
 import { useSuiBalance } from './hooks/useSuiBalance';
 import { usePriceEstimation } from './hooks/usePriceEstimation';
+import type { WalletAdapterWithSign } from '@/app/types/WalletAdapterWithSign';
+import { SuiClient } from '@mysten/sui/client';
 
 // Read contract IDs from environment variables
 const PACKAGE_ID = process.env.NEXT_PUBLIC_PACKAGE_ID!;
@@ -13,13 +15,14 @@ const SHARES_TRADING_OBJECT_ID = process.env.NEXT_PUBLIC_SHARES_TRADING_OBJECT_I
 
 interface SharesTradePanelProps {
   subjectAddress: string;
-  suiClient: any;
-  walletAdapter: any;
+  suiClient: SuiClient;
+  walletAdapter?: WalletAdapterWithSign;
 }
 
 /**
  * SharesTradePanel - UI component for buying/selling shares on Sui blockchain.
  * Shows supply, user balance, SUI balance, price estimation, and buy/sell forms.
+ * @param suiClient SuiClient instance for blockchain interaction.
  */
 export const SharesTradePanel: React.FC<SharesTradePanelProps> = ({ subjectAddress, suiClient, walletAdapter }) => {
   const currentAccount = useCurrentAccount();

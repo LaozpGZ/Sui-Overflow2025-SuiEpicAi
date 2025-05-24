@@ -6,6 +6,7 @@ import { fetchAgentDetail, AgentDetail } from '@/components/agentService';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { SharesTradePanel } from '@/app/shares/SharesTradePanel';
 import { useSuiClient, useWallets, useCurrentAccount } from '@mysten/dapp-kit';
+import type { WalletAdapterWithSign } from '@/app/types/WalletAdapterWithSign';
 
 export default function AgentDetailClient({ name }: { name: string }) {
   const [agent, setAgent] = useState<AgentDetail | null>(null);
@@ -41,12 +42,13 @@ export default function AgentDetailClient({ name }: { name: string }) {
   const wallets = useWallets();
   const currentAccount = useCurrentAccount();
   // Find the wallet for the current account
+  // SuiClient is obtained from useSuiClient() and passed as a prop for blockchain interaction
   const wallet = wallets.find(w => w.accounts.some(a => a.address === currentAccount?.address));
   // Type guard for signAndExecuteTransactionBlock
-  let walletAdapter: any = undefined;
+  let walletAdapter: WalletAdapterWithSign | undefined = undefined;
   const feature = wallet?.features?.['standard:signAndExecuteTransactionBlock'];
   if (feature && typeof feature === 'object' && 'signAndExecuteTransactionBlock' in feature) {
-    walletAdapter = (feature as any).signAndExecuteTransactionBlock;
+    walletAdapter = feature as WalletAdapterWithSign;
   }
 
   if (loading) {
