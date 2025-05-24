@@ -1,31 +1,31 @@
 import { useEffect, useState } from 'react';
 import { getSharesBalance } from '../services/suiSharesService';
-import { SharesBalanceResult } from '../../../types/shares';
 
+/**
+ * useUserSharesBalance - React hook to fetch user's shares balance for a subject.
+ * @param sharesTradingObjectId Shares trading object id.
+ * @param subjectAddress The subject address.
+ * @param userAddress The user's wallet address.
+ * @returns { balance, loading, error }
+ */
 export function useUserSharesBalance(
   sharesTradingObjectId: string,
   subjectAddress: string,
   userAddress: string
 ) {
-  const [data, setData] = useState<SharesBalanceResult | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [balance, setBalance] = useState<bigint>(0n);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!subjectAddress || !userAddress) return;
+    if (!userAddress) return;
     setLoading(true);
     setError(null);
     getSharesBalance(sharesTradingObjectId, subjectAddress, userAddress)
-      .then((res) => {
-        setData(res);
-        setError(null);
-      })
-      .catch((err) => {
-        setError(err instanceof Error ? err.message : 'Failed to fetch shares balance.');
-        setData(null);
-      })
+      .then((result) => setBalance(result.balance))
+      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to fetch shares balance.'))
       .finally(() => setLoading(false));
   }, [sharesTradingObjectId, subjectAddress, userAddress]);
 
-  return { data, loading, error };
+  return { balance, loading, error };
 } 

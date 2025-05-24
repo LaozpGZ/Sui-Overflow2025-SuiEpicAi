@@ -1,34 +1,25 @@
 import { useEffect, useState } from 'react';
 import { getSharesSupply } from '../services/suiSharesService';
-import { SharesSupplyResult } from '../../../types/shares';
 
 /**
- * Custom hook to fetch shares supply for a subject address.
- * Returns { data, isLoading, error } for UI-friendly error and loading handling.
+ * useSharesSupply - React hook to fetch total supply of shares for a subject.
+ * @param sharesTradingObjectId The trading object id.
+ * @param subjectAddress The subject address.
+ * @returns { supply, loading, error }
  */
-export function useSharesSupply(
-  sharesTradingObjectId: string,
-  subjectAddress: string
-) {
-  const [data, setData] = useState<SharesSupplyResult | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+export function useSharesSupply(sharesTradingObjectId: string, subjectAddress: string) {
+  const [supply, setSupply] = useState<bigint>(0n);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!subjectAddress) return;
-    setIsLoading(true);
+    setLoading(true);
     setError(null);
     getSharesSupply(sharesTradingObjectId, subjectAddress)
-      .then((res) => {
-        setData(res);
-        setError(null);
-      })
-      .catch((err) => {
-        setError(err instanceof Error ? err.message : 'Failed to fetch shares supply.');
-        setData(null);
-      })
-      .finally(() => setIsLoading(false));
+      .then((result) => setSupply(result.supply))
+      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to fetch supply.'))
+      .finally(() => setLoading(false));
   }, [sharesTradingObjectId, subjectAddress]);
 
-  return { data, isLoading, error };
+  return { supply, loading, error };
 } 

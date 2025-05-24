@@ -4,43 +4,15 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { fetchAgentDetail, AgentDetail } from '@/components/agentService';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { useCurrentAccount } from '@mysten/dapp-kit';
-import { useSharesBalance } from '@/hooks/useSharesBalance';
-import TradeForm from '@/app/shares/TradeForm';
-import { CURRENT_NETWORK_CONFIG } from '@/config/network';
+import { SharesTradePanel } from '@/app/shares/SharesTradePanel';
+import { useSuiClient, useWallets, useCurrentAccount } from '@mysten/dapp-kit';
 
 export default function AgentDetailClient({ name }: { name: string }) {
-  const currentAccount = useCurrentAccount();
-  const walletAddress = currentAccount?.address;
-  const isWalletConnected = !!walletAddress;
   const [agent, setAgent] = useState<AgentDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [tradeMode, setTradeMode] = useState<'buy' | 'sell' | null>(null);
 
-  const sharesTradingObjectId = CURRENT_NETWORK_CONFIG.sharesTradingObjectId || '';
-  const { data: sharesBalanceData } = useSharesBalance(
-    sharesTradingObjectId,
-    agent?.subject_address || '',
-    walletAddress || ''
-  );
-  const formattedBalance = sharesBalanceData?.balance?.toString() || '0';
-
-  const handleBuy = () => {
-    if (!agent?.subject_address) return;
-    setTradeMode('buy');
-  };
-  const handleSell = () => {
-    if (!agent?.subject_address) return;
-    setTradeMode('sell');
-  };
-  const handleCloseTradeForm = () => {
-    setTradeMode(null);
-  };
-  const handleTradeComplete = () => {
-    setTradeMode(null);
-  };
-
+  // Fetch agent detail from backend
   useEffect(() => {
     if (typeof name !== 'string' || name.trim() === '') {
       setError('Invalid agent name');
@@ -64,6 +36,18 @@ export default function AgentDetailClient({ name }: { name: string }) {
     };
     loadAgentDetail();
   }, [name]);
+
+  const suiClient = useSuiClient();
+  const wallets = useWallets();
+  const currentAccount = useCurrentAccount();
+  // Find the wallet for the current account
+  const wallet = wallets.find(w => w.accounts.some(a => a.address === currentAccount?.address));
+  // Type guard for signAndExecuteTransactionBlock
+  let walletAdapter: any = undefined;
+  const feature = wallet?.features?.['standard:signAndExecuteTransactionBlock'];
+  if (feature && typeof feature === 'object' && 'signAndExecuteTransactionBlock' in feature) {
+    walletAdapter = (feature as any).signAndExecuteTransactionBlock;
+  }
 
   if (loading) {
     return (
@@ -129,49 +113,12 @@ export default function AgentDetailClient({ name }: { name: string }) {
           </a>
         </div>
 
-        <div className="mb-4">
-          <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-md p-4 text-center">
-            {!isWalletConnected ? (
-              <p className="text-blue-900 font-semibold">Connect your wallet to trade shares</p>
-            ) : (
-              <>
-                <p className="mb-3 text-blue-900 font-semibold">You currently have {formattedBalance} shares of this agent</p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <button
-                    onClick={handleBuy}
-                    className="bg-blue-500 text-white px-5 py-2 rounded-md shadow-sm hover:brightness-110 font-semibold"
-                  >
-                    Buy Shares
-                  </button>
-                  <button
-                    onClick={handleSell}
-                    disabled={parseFloat(formattedBalance) <= 0}
-                    className={`px-5 py-2 rounded-md shadow-sm font-semibold ${
-                      parseFloat(formattedBalance) > 0
-                        ? 'bg-blue-600 text-white hover:brightness-110'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    }`}
-                  >
-                    Sell Shares
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {tradeMode && agent && (
-          <TradeForm
-            mode={tradeMode}
-            share={{
-              subject_address: agent.subject_address,
-              shares_amount: formattedBalance
-            }}
-            userAddress={walletAddress || ''}
-            onClose={handleCloseTradeForm}
-            onComplete={handleTradeComplete}
-          />
-        )}
+        {/* Chain-based shares trading panel */}
+        <SharesTradePanel
+          subjectAddress={agent.subject_address}
+          suiClient={suiClient}
+          walletAdapter={walletAdapter}
+        />
       </div>
     </div>
   );
