@@ -7,6 +7,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { useCurrentAccount } from '@mysten/dapp-kit';
 import { useSharesBalance } from '@/hooks/useSharesBalance';
 import TradeForm from '@/app/shares/TradeForm';
+import { CURRENT_NETWORK_CONFIG } from '@/config/network';
 
 export default function AgentDetailClient({ name }: { name: string }) {
   const currentAccount = useCurrentAccount();
@@ -17,7 +18,9 @@ export default function AgentDetailClient({ name }: { name: string }) {
   const [error, setError] = useState('');
   const [tradeMode, setTradeMode] = useState<'buy' | 'sell' | null>(null);
 
+  const sharesTradingObjectId = CURRENT_NETWORK_CONFIG.sharesTradingObjectId || '';
   const { data: sharesBalanceData } = useSharesBalance(
+    sharesTradingObjectId,
     agent?.subject_address || '',
     walletAddress || ''
   );

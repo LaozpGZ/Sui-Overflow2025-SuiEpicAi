@@ -4,16 +4,16 @@ import { useEffect, useState } from 'react';
 import { getSharesBalance } from '@/app/shares/services/suiSharesService';
 import { SharesBalanceResult } from '@/types/shares';
 
-export function useSharesBalance(subjectAddress: string, userAddress: string) {
+export function useSharesBalance(sharesTradingObjectId: string, subjectAddress: string, userAddress: string) {
   const [data, setData] = useState<SharesBalanceResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!subjectAddress || !userAddress) return;
+    if (!sharesTradingObjectId || !subjectAddress || !userAddress) return;
     setIsLoading(true);
     setError(null);
-    getSharesBalance(subjectAddress, userAddress)
+    getSharesBalance(sharesTradingObjectId, subjectAddress, userAddress)
       .then((res) => {
         setData(res);
         setError(null);
@@ -23,7 +23,7 @@ export function useSharesBalance(subjectAddress: string, userAddress: string) {
         setData(null);
       })
       .finally(() => setIsLoading(false));
-  }, [subjectAddress, userAddress]);
+  }, [sharesTradingObjectId, subjectAddress, userAddress]);
 
   return { data, isLoading, error };
 } 

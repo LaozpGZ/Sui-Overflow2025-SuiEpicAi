@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import React from 'react';
-import { useSuiClient, useCurrentAccount } from '@mysten/dapp-kit';
+import { useSuiClient, useCurrentAccount, useWallets } from '@mysten/dapp-kit';
 import { formatPrice, isFirstShareSelfPurchase } from './utils/contractUtils';
 import { Share } from '@/types/shares';
 import { usePriceEstimation } from './hooks/usePriceEstimation';
@@ -39,32 +39,36 @@ export default function TradeForm({
   // Get SuiClient, network variables, and wallet from context
   const suiClient = useSuiClient();
   const currentAccount = useCurrentAccount();
+  const wallets = useWallets();
+  const currentWallet = wallets.find(
+    (wallet) => wallet.accounts.some((acc) => acc.address === currentAccount?.address)
+  );
 
   // Get objectId and packageId from network variables
   const sharesTradingObjectId = CURRENT_NETWORK_CONFIG.sharesTradingObjectId;
   const packageId = CURRENT_NETWORK_CONFIG.packageId;
 
   // Pass wallet object to useTradeShares
-  const { trade, isPending, isConfirming } = useTradeShares(onComplete, suiClient, currentAccount);
+  const { trade, isPending, isConfirming } = useTradeShares(onComplete, suiClient, currentWallet);
 
   // Call usePriceEstimation with correct params and safely get estimatedPrice
   const { data: priceEstimationData } = usePriceEstimation(
-    packageId,
-    sharesTradingObjectId,
-    subjectAddress,
+    packageId!,
+    sharesTradingObjectId!,
+    subjectAddress!,
     Number(amount)
   );
   const estimatedPrice = priceEstimationData?.price ?? null;
   const { data: sharesSupplyData } = useSharesSupply(
-    sharesTradingObjectId,
-    subjectAddress
+    sharesTradingObjectId!,
+    subjectAddress!
   );
   const sharesSupply = sharesSupplyData?.supply ?? 0n;
   // Query on-chain balance (testnet only)
   const { data: sharesBalanceData } = useSharesBalance(
-    sharesTradingObjectId,
-    subjectAddress,
-    userAddress
+    sharesTradingObjectId!,
+    subjectAddress!,
+    userAddress!
   );
   const chainBalance = sharesBalanceData?.balance ?? 0n;
 

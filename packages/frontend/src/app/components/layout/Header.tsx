@@ -6,7 +6,6 @@ import Balance from '@suiware/kit/Balance'
 import NetworkType from '@suiware/kit/NetworkType'
 import { APP_NAME } from '@/app/config/main'
 import Image from 'next/image'
-import Logo from '../../assets/logo.svg'
 
 const Header = () => {
   return (
@@ -18,7 +17,7 @@ const Header = () => {
         <Image
           width={40}
           height={40}
-          src={Logo}
+          src="/assets/logo.svg"
           alt="Logo"
           className="h-12 w-12"
         />

@@ -1,7 +1,7 @@
 import { useCurrentAccount, useSuiClientQuery } from '@mysten/dapp-kit'
 import { CONTRACT_PACKAGE_VARIABLE_NAME } from '@/config/network'
 import { fullStructName } from '~~/helpers/network'
-import useNetworkConfig from '@/hooks/useNetworkConfig'
+import useNetworkConfig from '@/app/hooks/useNetworkConfig'
 
 const useOwnGreeting = () => {
   const currentAccount = useCurrentAccount()

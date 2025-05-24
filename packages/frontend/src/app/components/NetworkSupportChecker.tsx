@@ -3,6 +3,7 @@
 import { useCurrentAccount } from '@mysten/dapp-kit'
 import useNetworkType from '@suiware/kit/useNetworkType'
 import { isNetworkSupported, supportedNetworks } from '../helpers/network'
+import { ENetwork } from '@/app/types/ENetwork'
 
 const NetworkSupportChecker = () => {
   const { networkType } = useNetworkType()
@@ -14,7 +15,7 @@ const NetworkSupportChecker = () => {
     return <></>
   }
 
-  if (networkType == null || isNetworkSupported(networkType as unknown)) {
+  if (networkType == null || isNetworkSupported(networkType as ENetwork)) {
     return <></>
   }
 

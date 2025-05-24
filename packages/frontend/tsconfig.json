@@ -32,11 +32,13 @@
     }
   },
   "include": [
+    "dist/types/**/*.ts",
+    "old/agent-detail",
     "src/**/*",
     "src/app/config/**/*",
     "src/app/hooks/**/*",
-    "dist/types/**/*.ts"
-, "old/agent-detail"  ],
+    ".next/types/**/*.ts"
+  ],
   "exclude": [
     "node_modules"
   ]

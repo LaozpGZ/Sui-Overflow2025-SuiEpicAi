@@ -56,7 +56,25 @@ export async function getSharesBalance(sharesTradingObjectId: string, subjectAdd
     if (!subjectField) return { balance: 0n };
     // 2. Get subjectField object content, extract subjectTableId
     const subjectFieldObj = await suiClient.getObject({ id: subjectField.objectId });
-    const subjectTableId = (subjectFieldObj?.data?.content as unknown)?.fields?.value?.fields?.id?.id;
+    let subjectTableId: string | undefined;
+    const subjectContent = subjectFieldObj?.data?.content as Record<string, unknown>;
+    if (subjectContent && typeof subjectContent === 'object' && 'fields' in subjectContent) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+      const fields = (subjectContent as any).fields;
+      if (fields && typeof fields === 'object' && 'value' in fields) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+        const value = (fields as any).value;
+        if (value && typeof value === 'object' && 'fields' in value) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+          const idObj = (value as any).fields;
+          if (idObj && typeof idObj === 'object' && 'id' in idObj) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+            const id = (idObj as any).id;
+            subjectTableId = id?.id;
+          }
+        }
+      }
+    }
     if (!subjectTableId) return { balance: 0n };
     // 3. Get userField
     const userFields = await suiClient.getDynamicFields({ parentId: subjectTableId });
@@ -64,8 +82,17 @@ export async function getSharesBalance(sharesTradingObjectId: string, subjectAdd
     if (!userField) return { balance: 0n };
     // 4. Get userField object content, extract balance
     const userFieldObj = await suiClient.getObject({ id: userField.objectId });
-    const value = (userFieldObj?.data?.content as unknown)?.fields?.value;
-    return { balance: value ? BigInt(value) : 0n };
+    let value: unknown;
+    const userContent = userFieldObj?.data?.content as Record<string, unknown>;
+    if (userContent && typeof userContent === 'object' && 'fields' in userContent) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+      const fields = (userContent as any).fields;
+      if (fields && typeof fields === 'object' && 'value' in fields) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+        value = (fields as any).value;
+      }
+    }
+    return { balance: value ? BigInt(value as string) : 0n };
   } catch (err) {
     console.error('[getSharesBalance] On-chain query failed:', err);
     return { balance: 0n };
@@ -81,8 +108,17 @@ export async function getSharesSupply(sharesTradingObjectId: string, subjectAddr
     if (!subjectField) return { supply: 0n };
     // 2. Get subjectField object content, extract supply
     const subjectFieldObj = await suiClient.getObject({ id: subjectField.objectId });
-    const value = (subjectFieldObj?.data?.content as unknown)?.fields?.value;
-    return { supply: value ? BigInt(value) : 0n };
+    let value: unknown;
+    const subjectContent = subjectFieldObj?.data?.content as Record<string, unknown>;
+    if (subjectContent && typeof subjectContent === 'object' && 'fields' in subjectContent) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+      const fields = (subjectContent as any).fields;
+      if (fields && typeof fields === 'object' && 'value' in fields) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+        value = (fields as any).value;
+      }
+    }
+    return { supply: value ? BigInt(value as string) : 0n };
   } catch (err) {
     console.error('[getSharesSupply] On-chain query failed:', err);
     return { supply: 0n };
@@ -135,8 +171,17 @@ export async function fetchSharesSupply(
     parentId: sharesTradingObjectId,
     name: { type: 'address', value: subjectAddress },
   });
-  const value = (resp?.data?.content as unknown)?.fields?.value;
-  return { supply: value ? BigInt(value) : 0n };
+  let value: unknown;
+  const content = resp?.data?.content as Record<string, unknown>;
+  if (content && typeof content === 'object' && 'fields' in content) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+    const fields = (content as any).fields;
+    if (fields && typeof fields === 'object' && 'value' in fields) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+      value = (fields as any).value;
+    }
+  }
+  return { supply: value ? BigInt(value as string) : 0n };
 }
 
 // Query the shares balance for a user under a given subject
@@ -149,14 +194,41 @@ export async function fetchSharesBalance(
     parentId: sharesTradingObjectId,
     name: { type: 'address', value: subjectAddress },
   });
-  const subjectTableId = (subjectField?.data?.content as unknown)?.fields?.value?.fields?.id?.id;
+  let subjectTableId: string | undefined;
+  const subjectContent = subjectField?.data?.content as Record<string, unknown>;
+  if (subjectContent && typeof subjectContent === 'object' && 'fields' in subjectContent) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+    const fields = (subjectContent as any).fields;
+    if (fields && typeof fields === 'object' && 'value' in fields) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+      const value = (fields as any).value;
+      if (value && typeof value === 'object' && 'fields' in value) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+        const idObj = (value as any).fields;
+        if (idObj && typeof idObj === 'object' && 'id' in idObj) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+          const id = (idObj as any).id;
+          subjectTableId = id?.id;
+        }
+      }
+    }
+  }
   if (!subjectTableId) return { balance: 0n };
   const userField = await suiClient.getDynamicFieldObject({
     parentId: subjectTableId,
     name: { type: 'address', value: userAddress },
   });
-  const value = (userField?.data?.content as unknown)?.fields?.value;
-  return { balance: value ? BigInt(value) : 0n };
+  let value: unknown;
+  const userContent = userField?.data?.content as Record<string, unknown>;
+  if (userContent && typeof userContent === 'object' && 'fields' in userContent) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+    const fields = (userContent as any).fields;
+    if (fields && typeof fields === 'object' && 'value' in fields) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+      value = (fields as any).value;
+    }
+  }
+  return { balance: value ? BigInt(value as string) : 0n };
 }
 
 /**
@@ -180,15 +252,32 @@ export async function getSubjectSupply(
       options: { showContent: true }
     });
     // 2. Extract the shares_supply Table objectId
-    const content = sharesTradingObj?.data?.content as unknown;
-    const sharesSupplyTableId = content?.fields?.shares_supply;
+    const content = sharesTradingObj?.data?.content as Record<string, unknown>;
+    let sharesSupplyTableId: unknown;
+    if (content && typeof content === 'object' && 'fields' in content) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+      const fields = (content as any).fields;
+      if (fields && typeof fields === 'object' && 'shares_supply' in fields) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+        sharesSupplyTableId = (fields as any).shares_supply;
+      }
+    }
     if (!sharesSupplyTableId) throw new Error('shares_supply not found');
     // 3. Query the Table for the subject's supply
     const supplyObj = await suiClient.getDynamicFieldObject({
-      parentId: sharesSupplyTableId,
+      parentId: sharesSupplyTableId as string,
       name: { type: 'address', value: subjectAddress }
     });
-    const supplyValue = (supplyObj?.data?.content as unknown)?.fields?.value;
+    let supplyValue: unknown;
+    const supplyContent = supplyObj?.data?.content as Record<string, unknown>;
+    if (supplyContent && typeof supplyContent === 'object' && 'fields' in supplyContent) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+      const fields = (supplyContent as any).fields;
+      if (fields && typeof fields === 'object' && 'value' in fields) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+        supplyValue = (fields as any).value;
+      }
+    }
     return Number(supplyValue);
   } catch (e: unknown) {
     throw new Error(e instanceof Error ? e.message : 'Failed to fetch subject supply');
@@ -202,11 +291,19 @@ export async function getAllSubjects(sharesTradingObjectId: string): Promise<str
       id: sharesTradingObjectId,
       options: { showContent: true }
     });
-    const content = sharesTradingObj?.data?.content as unknown;
-    const sharesSupplyTableId = content?.fields?.shares_supply;
+    const content = sharesTradingObj?.data?.content as Record<string, unknown>;
+    let sharesSupplyTableId: unknown;
+    if (content && typeof content === 'object' && 'fields' in content) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+      const fields = (content as any).fields;
+      if (fields && typeof fields === 'object' && 'shares_supply' in fields) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+        sharesSupplyTableId = (fields as any).shares_supply;
+      }
+    }
     if (!sharesSupplyTableId) throw new Error('shares_supply not found');
-    const subjects = await suiClient.getDynamicFields({ parentId: sharesSupplyTableId });
-    return subjects.data.map((item: { name: { value: string } }) => item.name.value);
+    const subjects = await suiClient.getDynamicFields({ parentId: sharesSupplyTableId as string });
+    return (subjects.data as { name: { value: string } }[]).map(item => item.name.value);
   } catch (e: unknown) {
     throw new Error(e instanceof Error ? e.message : 'Failed to fetch subjects');
   }

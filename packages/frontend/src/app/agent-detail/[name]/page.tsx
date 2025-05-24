@@ -1,29 +1,13 @@
 import AgentDetailClient from './AgentDetailClient';
 
-// This function dynamically fetches agent names for static export from the backend API.
-export async function generateStaticParams() {
-  // Always include a test param for local development
-  const staticTestParams = [{ name: 'SuiTestBot_2' }];
-  const baseUrl = process.env.NEXT_PUBLIC_SERVER_API || 'http://38.54.24.5/api';
-  try {
-    const res = await fetch(`${baseUrl}/agents?page=1&page_size=1000`);
-    const data = await res.json();
-    const dynamicParams = (data.agents || []).map((agent: { agent_name: string }) => ({
-      name: agent.agent_name,
-    }));
-    // Merge and deduplicate params
-    const allParams = [...staticTestParams, ...dynamicParams].filter(
-      (v, i, a) => a.findIndex(t => t.name === v.name) === i
-    );
-    return allParams;
-  } catch {
-    // If fetch fails, fallback to static test param
-    return staticTestParams;
-  }
-}
+export const dynamic = 'force-dynamic';
 
-// This must be a synchronous function, not async!
-export default function AgentDetailPage({ params }: { params: { name: string } }) {
-  const { name } = params;
+export default async function AgentDetailPage({
+  params,
+}: {
+  params: Promise<{ name: string }>
+}) {
+  // Await the params Promise to get the dynamic route parameter
+  const { name } = await params;
   return <AgentDetailClient name={name} />;
 } 
