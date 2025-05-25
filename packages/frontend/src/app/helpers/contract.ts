@@ -1,7 +1,7 @@
-import { WEB3_CONFIG } from '@/app/config/config';
+import { WEB3_CONFIG } from '@/config/api';
 
 // Contract configuration
-export const CONTRACT_ADDRESS = WEB3_CONFIG.CONTRACT_ADDRESS as `0x${string}`;
+export const CONTRACT_ADDRESS = WEB3_CONFIG.packageId as `0x${string}`;
 export const CONTRACT_ABI = [
   {
     inputs: [

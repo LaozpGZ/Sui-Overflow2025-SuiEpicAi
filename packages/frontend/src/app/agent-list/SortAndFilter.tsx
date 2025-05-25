@@ -2,8 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { nanoid } from "nanoid";
-import { Check, ChevronDown, ArrowDownAZ, ArrowUpZA, ListFilter, X } from "lucide-react";
+import { Check, ArrowDownAZ, ListFilter, X } from "lucide-react";
 
 import {
   Select,
@@ -12,13 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 import {
   Popover,

@@ -40,105 +40,6 @@ export default function SharesPage() {
 
   const balances = [
     useUserSharesBalance(sharesTradingObjectId, paddedSubjects[0] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[1] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[2] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[3] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[4] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[5] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[6] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[7] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[8] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[9] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[10] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[11] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[12] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[13] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[14] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[15] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[16] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[17] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[18] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[19] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[20] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[21] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[22] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[23] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[24] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[25] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[26] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[27] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[28] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[29] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[30] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[31] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[32] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[33] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[34] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[35] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[36] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[37] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[38] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[39] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[40] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[41] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[42] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[43] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[44] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[45] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[46] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[47] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[48] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[49] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[50] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[51] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[52] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[53] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[54] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[55] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[56] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[57] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[58] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[59] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[60] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[61] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[62] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[63] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[64] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[65] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[66] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[67] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[68] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[69] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[70] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[71] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[72] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[73] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[74] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[75] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[76] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[77] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[78] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[79] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[80] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[81] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[82] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[83] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[84] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[85] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[86] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[87] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[88] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[89] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[90] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[91] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[92] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[93] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[94] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[95] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[96] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[97] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[98] || '', walletAddress || ''),
-    useUserSharesBalance(sharesTradingObjectId, paddedSubjects[99] || '', walletAddress || ''),
   ];
 
   const userShares = (paddedSubjects
@@ -162,7 +63,23 @@ export default function SharesPage() {
     return <Loading />;
   }
   if (errorSubjects) {
-    return <ErrorMessage message={errorSubjects} />;
+    return (
+      <ErrorMessage
+        message={
+          <>
+            <div>{errorSubjects}</div>
+            <div className="mt-2 text-sm text-slate-400">
+              Possible causes:<br />
+              1. The environment variable <b>NEXT_PUBLIC_XXX_SHARES_TRADING_OBJECT_ID</b> is incorrect.<br />
+              2. The contract object on-chain is not properly initialized (missing <b>shares_supply</b> field).<br />
+              3. The current network does not match the objectId&apos;s network.<br />
+              <br />
+              Please use suiexplorer to inspect the objectId, or contact the developer for assistance.
+            </div>
+          </>
+        }
+      />
+    );
   }
 
   return (
@@ -217,8 +134,6 @@ export default function SharesPage() {
                   <TradeForm 
                     mode={tradeMode} 
                     share={selectedShare}
-                    userAddress={walletAddress || ''}
-                    onClose={closeTradeForm}
                     onComplete={handleTradeComplete}
                   />
                 )}

@@ -13,7 +13,6 @@ import { nanoid } from 'nanoid';
 
 function Page() {
   const [agents, setAgents] = useState<Agent[]>([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(12);
@@ -42,7 +41,6 @@ function Page() {
 
   // Load agent list
   const loadAgents = async () => {
-    setLoading(true);
     setError(null);
     try {
       // Only use fetchAgentList, backend does not support search/sort/filter yet
@@ -78,8 +76,6 @@ function Page() {
         setError('Failed to load agents.');
       }
       setAgents([]);
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -3,8 +3,7 @@ import { MapPin } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { CardFooter } from "@/components/ui/card";
 import CopyButton from "./CopyButton";
 import { motion, AnimatePresence } from "framer-motion";
 

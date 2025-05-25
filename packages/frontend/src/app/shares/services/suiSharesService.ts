@@ -59,18 +59,14 @@ export async function getSharesBalance(sharesTradingObjectId: string, subjectAdd
     let subjectTableId: string | undefined;
     const subjectContent = subjectFieldObj?.data?.content as Record<string, unknown>;
     if (subjectContent && typeof subjectContent === 'object' && 'fields' in subjectContent) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-      const fields = (subjectContent as any).fields;
+      const fields = subjectContent.fields;
       if (fields && typeof fields === 'object' && 'value' in fields) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-        const value = (fields as any).value;
+        const value = fields.value;
         if (value && typeof value === 'object' && 'fields' in value) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-          const idObj = (value as any).fields;
+          const idObj = value.fields;
           if (idObj && typeof idObj === 'object' && 'id' in idObj) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-            const id = (idObj as any).id;
-            subjectTableId = id?.id;
+            const id = idObj.id;
+            subjectTableId = getInnerId(id);
           }
         }
       }
@@ -85,11 +81,9 @@ export async function getSharesBalance(sharesTradingObjectId: string, subjectAdd
     let value: unknown;
     const userContent = userFieldObj?.data?.content as Record<string, unknown>;
     if (userContent && typeof userContent === 'object' && 'fields' in userContent) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-      const fields = (userContent as any).fields;
+      const fields = userContent.fields;
       if (fields && typeof fields === 'object' && 'value' in fields) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-        value = (fields as any).value;
+        value = fields.value;
       }
     }
     return { balance: value ? BigInt(value as string) : 0n };
@@ -111,11 +105,9 @@ export async function getSharesSupply(sharesTradingObjectId: string, subjectAddr
     let value: unknown;
     const subjectContent = subjectFieldObj?.data?.content as Record<string, unknown>;
     if (subjectContent && typeof subjectContent === 'object' && 'fields' in subjectContent) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-      const fields = (subjectContent as any).fields;
+      const fields = subjectContent.fields;
       if (fields && typeof fields === 'object' && 'value' in fields) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-        value = (fields as any).value;
+        value = fields.value;
       }
     }
     return { supply: value ? BigInt(value as string) : 0n };
@@ -174,11 +166,9 @@ export async function fetchSharesSupply(
   let value: unknown;
   const content = resp?.data?.content as Record<string, unknown>;
   if (content && typeof content === 'object' && 'fields' in content) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-    const fields = (content as any).fields;
+    const fields = content.fields;
     if (fields && typeof fields === 'object' && 'value' in fields) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-      value = (fields as any).value;
+      value = fields.value;
     }
   }
   return { supply: value ? BigInt(value as string) : 0n };
@@ -197,18 +187,14 @@ export async function fetchSharesBalance(
   let subjectTableId: string | undefined;
   const subjectContent = subjectField?.data?.content as Record<string, unknown>;
   if (subjectContent && typeof subjectContent === 'object' && 'fields' in subjectContent) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-    const fields = (subjectContent as any).fields;
+    const fields = subjectContent.fields;
     if (fields && typeof fields === 'object' && 'value' in fields) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-      const value = (fields as any).value;
+      const value = fields.value;
       if (value && typeof value === 'object' && 'fields' in value) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-        const idObj = (value as any).fields;
+        const idObj = value.fields;
         if (idObj && typeof idObj === 'object' && 'id' in idObj) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-          const id = (idObj as any).id;
-          subjectTableId = id?.id;
+          const id = idObj.id;
+          subjectTableId = getInnerId(id);
         }
       }
     }
@@ -221,11 +207,9 @@ export async function fetchSharesBalance(
   let value: unknown;
   const userContent = userField?.data?.content as Record<string, unknown>;
   if (userContent && typeof userContent === 'object' && 'fields' in userContent) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-    const fields = (userContent as any).fields;
+    const fields = userContent.fields;
     if (fields && typeof fields === 'object' && 'value' in fields) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-      value = (fields as any).value;
+      value = fields.value;
     }
   }
   return { balance: value ? BigInt(value as string) : 0n };
@@ -255,11 +239,9 @@ export async function getSubjectSupply(
     const content = sharesTradingObj?.data?.content as Record<string, unknown>;
     let sharesSupplyTableId: unknown;
     if (content && typeof content === 'object' && 'fields' in content) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-      const fields = (content as any).fields;
+      const fields = content.fields;
       if (fields && typeof fields === 'object' && 'shares_supply' in fields) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-        sharesSupplyTableId = (fields as any).shares_supply;
+        sharesSupplyTableId = fields.shares_supply;
       }
     }
     if (!sharesSupplyTableId) throw new Error('shares_supply not found');
@@ -271,11 +253,9 @@ export async function getSubjectSupply(
     let supplyValue: unknown;
     const supplyContent = supplyObj?.data?.content as Record<string, unknown>;
     if (supplyContent && typeof supplyContent === 'object' && 'fields' in supplyContent) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-      const fields = (supplyContent as any).fields;
+      const fields = supplyContent.fields;
       if (fields && typeof fields === 'object' && 'value' in fields) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-        supplyValue = (fields as any).value;
+        supplyValue = fields.value;
       }
     }
     return Number(supplyValue);
@@ -294,14 +274,21 @@ export async function getAllSubjects(sharesTradingObjectId: string): Promise<str
     const content = sharesTradingObj?.data?.content as Record<string, unknown>;
     let sharesSupplyTableId: unknown;
     if (content && typeof content === 'object' && 'fields' in content) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-      const fields = (content as any).fields;
+      const fields = content.fields;
       if (fields && typeof fields === 'object' && 'shares_supply' in fields) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-        sharesSupplyTableId = (fields as any).shares_supply;
+        sharesSupplyTableId = fields.shares_supply;
       }
     }
-    if (!sharesSupplyTableId) throw new Error('shares_supply not found');
+    if (!sharesSupplyTableId) {
+      // Throw a more user-friendly error with troubleshooting instructions
+      throw new Error(
+        `shares_supply not found! The contract objectId (${sharesTradingObjectId}) is invalid or not initialized on-chain.\n` +
+        `Please check your environment variable and contract deployment.\n` +
+        `1. Make sure NEXT_PUBLIC_XXX_SHARES_TRADING_OBJECT_ID is set to the correct on-chain SharesTrading objectId.\n` +
+        `2. Use suiexplorer to inspect the object and ensure it contains the shares_supply field.\n` +
+        `3. Ensure the contract was initialized with the init function after deployment.`
+      );
+    }
     const subjects = await suiClient.getDynamicFields({ parentId: sharesSupplyTableId as string });
     return (subjects.data as { name: { value: string } }[]).map(item => item.name.value);
   } catch (e: unknown) {
@@ -363,4 +350,13 @@ export async function getSuiBalance(address: string): Promise<bigint> {
  *   if (error) return <div>Error: {error}</div>;
  *   return <div>Current shares supply: {supply}</div>;
  * }
- */ 
+ */
+
+// Helper type guard to extract inner id
+function getInnerId(id: unknown): string | undefined {
+  if (typeof id === 'string') return id;
+  if (id && typeof id === 'object' && 'id' in id && typeof (id as { id: unknown }).id === 'string') {
+    return (id as { id: string }).id;
+  }
+  return undefined;
+} 

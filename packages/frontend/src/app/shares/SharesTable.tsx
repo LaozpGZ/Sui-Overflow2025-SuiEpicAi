@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { TrendingUp } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown } from "lucide-react";
 import Loading from '@/app/components/Loading';
 import ErrorMessage from '@/app/components/ErrorMessage';
 import type { SharesBalanceResult } from '@/types/shares';

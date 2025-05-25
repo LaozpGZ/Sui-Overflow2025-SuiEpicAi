@@ -8,6 +8,8 @@ import { useCurrentAccount } from '@mysten/dapp-kit';
 import CustomConnectButton from './CustomConnectButton';
 import { useDebounce } from '@/hooks/useDebounce';
 import { API_CONFIG } from '@/config/api';
+import { AI_FRAME_CONFIG } from '@/app/config/config';
+import { WEB3_CONFIG } from '@/app/config/api';
 
 // Loading spinner component
 const Loading = () => (
@@ -56,12 +58,12 @@ export default function CreateAgentForm() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // Wallet not connected
+      // If wallet is not connected
       if (!isWalletConnected) {
         setIsLoading(false);
         return;
       }
-      // Only keep add_tg_bot request
+      // Step 1: Add Telegram bot
       const addTelegramBotResponse = await fetch(`${API_CONFIG.SERVER_API}/add_tg_bot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -76,12 +78,79 @@ export default function CreateAgentForm() {
         }),
       });
       if (!addTelegramBotResponse.ok) throw new Error(`Failed to add Telegram bot: ${addTelegramBotResponse.status} ${addTelegramBotResponse.statusText}`);
+      // Get agentId from response
+      const addTelegramBotData = await addTelegramBotResponse.json();
+      const agentId = addTelegramBotData.agentId || addTelegramBotData.id || addTelegramBotData.agent_id;
+      if (!agentId) throw new Error('Failed to get agentId');
+      // Construct agentData
+      const agentData = {
+        name: agentName,
+        clients: ["telegram"],
+        allowDirectMessages: true,
+        modelProvider: "deepseek",
+        settings: {
+          secrets: {
+            TELEGRAM_BOT_TOKEN: telegramToken,
+            NEW_MEMBER_VERIFY_URL: WEB3_CONFIG.NEW_MEMBER_VERIFY_URL
+          },
+          modelConfig: {
+            maxOutputTokens: 4096
+          }
+        },
+        plugins: ["@elizaos-plugins/client-telegram"],
+        bio: [agentBio],
+        lore: [],
+        knowledge: [
+          "I can execute token transfers, staking, unstaking, and governance actions directly with the connected wallet.",
+          "I ensure all actions are verified and secure before execution.",
+          "I support creating new denominations (denoms) directly through your wallet."
+        ],
+        messageExamples: [],
+        postExamples: [],
+        topics: [
+          "Direct wallet operations",
+          "Token management",
+          "Secure transaction execution"
+        ],
+        style: {
+          all: [
+            "Direct",
+            "Precise",
+            "Factual",
+            "Data-driven"
+          ],
+          chat: [
+            "Clear",
+            "Verification-focused",
+            "Data-driven"
+          ],
+          post: []
+        },
+        adjectives: [
+          "Accurate",
+          "Methodical",
+          "Wallet-integrated"
+        ]
+      };
+      // Step 2: Set agent details
+      const setResponse = await fetch(`${AI_FRAME_CONFIG.AI_FRAME_API}/agents/${agentId}/set`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(agentData),
+      });
+      if (!setResponse.ok) {
+        throw new Error(`Failed to create agent: ${setResponse.status} ${setResponse.statusText}`);
+      }
       // Success feedback
       setSuccess(true);
       setTimeout(() => {
         router.push('/');
       }, 1500);
-    } catch {}
+    } catch {
+      // You can add error handling here
+    }
     setIsLoading(false);
   };
 

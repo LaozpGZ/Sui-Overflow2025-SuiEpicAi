@@ -6,12 +6,11 @@ import { cn } from "@/lib/utils";
 
 interface CopyButtonProps {
   value: string;
-  display?: React.ReactNode;
   className?: string;
   tooltip?: string;
 }
 
-const CopyButton: React.FC<CopyButtonProps> = ({ value, display, className, tooltip }) => {
+const CopyButton: React.FC<CopyButtonProps> = ({ value, className, tooltip }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -19,8 +18,8 @@ const CopyButton: React.FC<CopyButtonProps> = ({ value, display, className, tool
       await navigator.clipboard.writeText(value);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch (err) {
-      // ignore
+    } catch {
+      // handle error
     }
   };
 
