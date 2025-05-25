@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import AgentList from '@/components/AgentList';
-import SearchBar from '@/components/SearchBar';
-import SortBar from '@/components/SortBar';
-import Pagination from '@/components/Pagination';
+import SearchInput from './SearchInput';
+import SortAndFilter from './SortAndFilter';
+import AgentList from './AgentList';
+import AgentPagination from './AgentPagination';
 import { fetchAgentList } from './api';
 import { Agent } from '@/app/agent-list/types';
 import { notification } from '../helpers/notification';
+import { ArrowDownAZ, ArrowUpZA } from 'lucide-react';
+import { nanoid } from 'nanoid';
 
 function Page() {
   const [agents, setAgents] = useState<Agent[]>([]);
@@ -19,6 +21,24 @@ function Page() {
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('new');
   const [filter, setFilter] = useState('');
+
+  // Sort and filter options
+  const sortOptions = [
+    { id: nanoid(), label: 'Newest', value: 'new', icon: <ArrowDownAZ className="h-4 w-4" /> },
+    { id: nanoid(), label: 'Trending', value: 'trending', icon: <ArrowUpZA className="h-4 w-4" /> },
+    { id: nanoid(), label: 'Price Asc', value: 'price-asc', icon: <ArrowDownAZ className="h-4 w-4" /> },
+    { id: nanoid(), label: 'Price Desc', value: 'price-desc', icon: <ArrowUpZA className="h-4 w-4" /> },
+  ];
+  const filterCategories = [
+    {
+      id: 'desc',
+      name: 'Description',
+      options: [
+        { id: nanoid(), label: 'Contains AI', value: 'ai' },
+        { id: nanoid(), label: 'Contains Agent', value: 'agent' },
+      ],
+    },
+  ];
 
   // Load agent list
   const loadAgents = async () => {
@@ -70,30 +90,43 @@ function Page() {
   }, [page, search, sort, filter]);
 
   // Search on enter or button
-  const handleSearch = () => {
+  const handleSearch = (query: string) => {
+    setSearch(query);
     setPage(1);
-    loadAgents();
+  };
+
+  // Sort change
+  const handleSortChange = (value: string) => {
+    setSort(value);
+    setPage(1);
+  };
+
+  // Filter change
+  const handleFilterChange = (filters: Record<string, string[]>) => {
+    // Only handle description filter
+    const descFilters = filters['desc'] || [];
+    setFilter(descFilters.join(' '));
+    setPage(1);
   };
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">Agent list</h1>
+      <h1 className="text-2xl font-bold mb-6">Agent List</h1>
       <div className="flex flex-wrap gap-4 items-center mb-6">
-        <SearchBar
-          value={search}
-          onChange={v => { setSearch(v); setPage(1); }}
+        <SearchInput
+          placeholder="Search agents..."
           onSearch={handleSearch}
         />
-        <SortBar
-          sort={sort}
-          onSortChange={v => { setSort(v); setPage(1); }}
-          filter={filter}
-          onFilterChange={v => { setFilter(v); setPage(1); }}
+        <SortAndFilter
+          sortOptions={sortOptions}
+          filterCategories={filterCategories}
+          onSortChange={handleSortChange}
+          onFilterChange={handleFilterChange}
         />
       </div>
       {error && (() => { notification.error(null, error); return null; })()}
-      <AgentList agents={agents.slice((page-1)*pageSize, page*pageSize)} loading={loading} />
-      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} loading={loading} />
+      <AgentList agents={agents.slice((page-1)*pageSize, page*pageSize)} />
+      <AgentPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
     </div>
   );
 }

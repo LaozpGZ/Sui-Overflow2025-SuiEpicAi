@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSuiClient, useCurrentAccount, useWallets } from '@mysten/dapp-kit';
 import { formatPrice, isFirstShareSelfPurchase } from './utils/contractUtils';
 import { Share } from '@/types/shares';
@@ -14,6 +13,20 @@ import { useSharesBalance } from './hooks/useSharesBalance';
 import { CURRENT_NETWORK_CONFIG } from '@/config/network';
 import Loading from '@/app/components/Loading';
 import ErrorMessage from '@/app/components/ErrorMessage';
+import { ArrowRight, Check, TrendingUp, TrendingDown, DollarSign, AlertCircle } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
 
 type TradeFormProps = {
   mode: 'buy' | 'sell';
@@ -23,18 +36,15 @@ type TradeFormProps = {
   onComplete: () => void;
 };
 
-export default function TradeForm({
-  mode,
-  share,
-  userAddress,
-  onClose,
-  onComplete,
-}: TradeFormProps) {
+const TradeForm: React.FC<TradeFormProps> = ({ mode, share, userAddress, onClose, onComplete }) => {
   const [subjectAddress, setSubjectAddress] = useState('');
   const [amount, setAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [suiBalance, setSuiBalance] = useState<bigint>(0n);
+  const [quantity, setQuantity] = useState<number>(0);
+  const [price, setPrice] = useState<number>(0);
+  const [result, setResult] = useState<null | { status: "success" | "error"; message: string }>(null);
 
   // Get SuiClient, network variables, and wallet from context
   const suiClient = useSuiClient();
@@ -52,13 +62,12 @@ export default function TradeForm({
   const { trade, isPending, isConfirming } = useTradeShares(onComplete, suiClient, currentWallet);
 
   // Call usePriceEstimation with correct params and safely get estimatedPrice
-  const { price, loading, error: priceEstimationError } = usePriceEstimation(
+  const { price: estimatedPrice, loading, error: priceEstimationError } = usePriceEstimation(
     packageId!,
     sharesTradingObjectId!,
     subjectAddress!,
     Number(amount)
   );
-  const estimatedPrice = price ?? null;
   const { supply: sharesSupply } = useSharesSupply(
     sharesTradingObjectId!,
     subjectAddress!
@@ -144,7 +153,7 @@ export default function TradeForm({
   /**
    * Handle form submit for buy/sell shares
    */
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     if (!validateForm()) {
@@ -197,120 +206,89 @@ export default function TradeForm({
   const isBalanceEnough = mode === 'buy' ? (estimatedPrice !== null && suiBalance >= BigInt(estimatedPrice)) : true;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
-      {/* Modal: use deep dark background, white text */}
-      <div className="bg-[#181f2a]/90 rounded-2xl shadow-2xl p-6 w-full max-w-md relative animate-scaleIn overflow-hidden">
-        {/* Loading overlay */}
-        {(isLoading || isPending || isConfirming) && <Loading />}
-        {error && <ErrorMessage message={error} />}
-        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-t-2xl" />
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold text-white">
-            {mode === 'buy' ? 'Buy Shares' : 'Sell Shares'}
-          </h3>
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-white transition p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-            aria-label="Close"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
+    <Card className="border-blue-200 shadow-lg w-full max-w-md mx-auto bg-blue-100">
+      <CardHeader className="pb-2 border-b border-blue-100 bg-gradient-to-r from-blue-500 to-blue-700 rounded-t-2xl">
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-xl font-bold text-white drop-shadow">{mode === "buy" ? "Buy Shares" : "Sell Shares"}</CardTitle>
+          <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 shadow-sm">
+            {mode === "buy" ? <TrendingUp className="h-4 w-4 mr-1 inline" /> : <TrendingDown className="h-4 w-4 mr-1 inline" />}
+            {mode === "buy" ? "Buy" : "Sell"}
+          </Badge>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {mode === 'buy' && (
-            <div>
-              <label className="block text-sm font-medium text-slate-200 mb-1">Subject Address</label>
-              <input
-                type="text"
-                value={subjectAddress}
-                onChange={(e) => setSubjectAddress(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#232b3a] text-white placeholder:text-slate-400"
-                placeholder="Enter the Subject address you want to buy"
-                disabled={isSubjectAddressDisabled}
-                required
-              />
-            </div>
-          )}
-          <div>
-            <label className="block text-sm font-medium text-slate-200 mb-1">Amount</label>
-            <div className="flex">
-              <input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-700 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-[#232b3a] text-white placeholder:text-slate-400"
-                placeholder="Enter amount"
-                disabled={isLoading || isPending || isConfirming}
-                required
-              />
-              {mode === 'sell' && (
-                <button
-                  type="button"
-                  onClick={handleSetMaxAmount}
-                  className="bg-gray-700 text-slate-200 px-3 py-2 rounded-r-md hover:bg-gray-600 text-xs font-medium"
-                >
-                  Max
-                </button>
+        <CardDescription className="text-blue-100/90 mt-1">{mode === "buy" ? "Buy shares at market price" : "Sell your shares at market price"}</CardDescription>
+      </CardHeader>
+      <CardContent className="bg-blue-50/80 rounded-b-xl">
+        {result ? (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              {result.status === "success" ? (
+                <Check className="h-5 w-5 text-green-500" />
+              ) : (
+                <AlertCircle className="h-5 w-5 text-red-500" />
               )}
+              <h3 className="text-lg font-medium text-blue-900">
+                {result.status === "success" ? "Transaction Completed" : "Transaction Failed"}
+              </h3>
             </div>
-            {mode === 'sell' && share && (
-              <div className="text-xs text-slate-400 mt-1">Maximum sellable: {share.shares_amount}</div>
-            )}
-            {mode === 'sell' && (
-              <div className="text-xs text-blue-300 mt-1">On-chain balance: {chainBalance.toString()}</div>
-            )}
-            {mode === 'buy' && (
-              <div className="text-xs text-blue-300 mt-1">Your SUI balance: {formatPrice(suiBalance)} SUI</div>
-            )}
-            {mode === 'buy' && !isBalanceEnough && (
-              <div className="text-xs text-red-400 mt-1">Insufficient SUI balance. You need at least {formatPrice(estimatedPrice)} SUI.</div>
-            )}
-            {estimatedPrice && (
-              <div className="p-2 bg-[#232b3a] rounded mt-2">
-                <p className="text-sm font-medium text-slate-200 mb-1">
-                  {mode === 'buy' ? 'Estimated Total Cost' : 'Estimated Total Proceeds'}:
-                  <span className="font-bold ml-1 text-white">{formatPrice(estimatedPrice)} SUI</span>
-                </p>
-                {mode === 'buy' && (
-                  <div className="text-xs text-slate-300 space-y-1 mt-1">
-                    <div>Principal: <span className="font-mono">{formatPrice(principal)} SUI</span></div>
-                    <div>Protocol Fee: <span className="font-mono">{formatPrice(protocolFee)} SUI</span></div>
-                    <div>Subject Fee: <span className="font-mono">{formatPrice(subjectFee)} SUI</span></div>
-                    <div className="font-bold">Total: <span className="font-mono">{formatPrice(total)} SUI</span></div>
-                  </div>
-                )}
+            <div className="text-sm text-blue-800">{result.message}</div>
+            <Button onClick={onClose} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full">
+              Close
+            </Button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="quantity" className="text-blue-900">Quantity</Label>
+              <Input
+                id="quantity"
+                type="number"
+                min="1"
+                value={quantity || ""}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                placeholder="Enter quantity"
+                className="bg-white border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-blue-900"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="price" className="text-blue-900">Price per share ($)</Label>
+              <Input
+                id="price"
+                type="number"
+                step="0.01"
+                min="0.01"
+                value={price || ""}
+                onChange={(e) => setPrice(Number(e.target.value))}
+                placeholder="Enter price"
+                className="bg-white border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-blue-900"
+              />
+            </div>
+            {quantity > 0 && price > 0 && (
+              <div className="py-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-blue-700">Total:</span>
+                  <span className="font-bold text-blue-900">${(quantity * price).toFixed(2)}</span>
+                </div>
               </div>
             )}
-            {/* Show loading state for price estimation */}
-            {loading && (
-              <div className="text-xs text-blue-400 mt-2">Estimating price...</div>
-            )}
-          </div>
-          <div className="flex justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-700 rounded text-slate-200 hover:bg-gray-700 transition"
-              disabled={isLoading || isPending || isConfirming}
-            >
-              Cancel
-            </button>
-            <button
+            <Button
               type="submit"
-              className={`px-4 py-2 rounded text-white font-medium flex items-center gap-2 transition shadow-md ${mode === 'buy' ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600' : 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600'}`}
-              disabled={isLoading || isPending || isConfirming || (mode === 'buy' && !isBalanceEnough)}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full gap-2 shadow-md"
+              disabled={quantity <= 0 || price <= 0 || isLoading}
             >
-              {(isLoading || isPending || isConfirming) && (
-                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
-              )}
-              {isPending || isConfirming ? 'Processing...' : mode === 'buy' ? 'Confirm Buy' : 'Confirm Sell'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+              {isLoading ? "Processing..." : mode === "buy" ? "Buy Shares" : "Sell Shares"}
+              {!isLoading && <ArrowRight className="h-4 w-4" />}
+            </Button>
+          </form>
+        )}
+      </CardContent>
+      <CardFooter className="flex justify-center border-t pt-4 text-xs text-blue-600 bg-blue-100 rounded-b-2xl">
+        <p>Market data may be delayed. Trade at your own risk.</p>
+      </CardFooter>
+    </Card>
   );
-}
+};
+
+export default TradeForm;
 
 // Custom toast helpers
 export function showSuccessToast(message: string) {

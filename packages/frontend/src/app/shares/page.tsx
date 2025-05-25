@@ -166,7 +166,7 @@ export default function SharesPage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#181f2a] flex flex-col items-center justify-start pt-24 pb-12 relative">
+    <div className="min-h-screen w-full bg-gradient-to-b from-blue-100 via-blue-50 to-white flex flex-col items-center justify-start pt-24 pb-12 relative">
       <nav className="h-20 w-full flex justify-between items-center px-8 text-white text-2xl font-semibold">
         <div className="flex items-center gap-1">
           <Image src="/logo.svg" alt="SuiEpicAI" width={32} height={32} />
